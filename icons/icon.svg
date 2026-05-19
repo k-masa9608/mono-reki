@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#2563eb"/>
+  <text x="96" y="72" font-size="14" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="sans-serif" font-weight="bold">何年</text>
+  <text x="96" y="108" font-size="14" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="sans-serif" font-weight="bold">使った？</text>
+  <rect x="32" y="120" width="128" height="12" rx="6" fill="rgba(255,255,255,0.3)"/>
+  <rect x="32" y="120" width="80" height="12" rx="6" fill="white"/>
+  <circle cx="112" cy="126" r="8" fill="white" stroke="#2563eb" stroke-width="2"/>
+</svg>
