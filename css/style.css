@@ -908,14 +908,17 @@ body {
 .tl-hint { font-size: 9px; color: var(--text-lt); font-weight: 600; }
 
 .tl-wrap { overflow-x: clip; }
-.tl-axis {
+
+/* 年軸（バーと同じflex構造で幅を一致させ sticky） */
+.tl-axis-row {
   position: sticky; top: 0; z-index: 10;
-  background: var(--slate);
   display: flex; align-items: center;
-  height: 20px;
-  margin-left: 88px; margin-bottom: 3px;
+  background: var(--slate);
   border-bottom: 1px solid var(--border-m);
+  margin-bottom: 2px;
 }
+.tl-axis-spacer { width: 88px; flex-shrink: 0; }
+.tl-axis-marks  { flex: 1; position: relative; height: 16px; }
 .tl-year-tick {
   position: absolute; transform: translateX(-50%);
   font-size: 9px; color: var(--text-lt); font-weight: 700; white-space: nowrap;
