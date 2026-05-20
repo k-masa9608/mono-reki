@@ -1492,3 +1492,11 @@ body {
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
 .graph-body { padding-top: 8px; }
+
+/* ── グラフ コントロール（ヘッダー内固定） ── */
+.graph-header-controls {
+  padding: 6px 12px 8px;
+  border-top: 1px solid var(--border);
+}
+.graph-header-controls .g-view-tabs { margin-bottom: 8px; }
+.graph-header-controls .tl-controls { margin-bottom: 0; }

@@ -227,20 +227,21 @@ export function render(items) {
 
   const { controls, body } = _view==='years' ? renderYears(items) : renderCostBars(items);
 
-  return `
-  <div id="graph-view">
-    <div class="section">
-      ${buildInsights(items)}
-      ${buildRankDist(items)}
-    </div>
-    <div class="graph-sticky">
-      <div class="g-view-tabs">${viewTabs}</div>
-      <div class="tl-controls">${controls}</div>
-    </div>
-    <div class="section graph-body">
-      ${body}
-    </div>
-  </div>`;
+  return {
+    headerExtra: `
+      <div class="graph-header-controls">
+        <div class="g-view-tabs">${viewTabs}</div>
+        <div class="tl-controls">${controls}</div>
+      </div>`,
+    body: `
+      <div id="graph-view">
+        <div class="section">
+          ${buildInsights(items)}
+          ${buildRankDist(items)}
+        </div>
+        <div class="section graph-body">${body}</div>
+      </div>`,
+  };
 }
 
 // ── init ─────────────────────────────────────────────

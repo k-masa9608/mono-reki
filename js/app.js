@@ -179,8 +179,9 @@ async function renderView(view, params = {}) {
       break;
     }
     case 'graph': {
-      appHeader.innerHTML = headerMain();
-      main.innerHTML = GraphView.render(items);
+      const { headerExtra, body } = GraphView.render(items);
+      appHeader.innerHTML = headerMain() + headerExtra;
+      main.innerHTML = body;
       GraphView.init(items, navigate, openModal);
       bindHeaderMain();
       break;
