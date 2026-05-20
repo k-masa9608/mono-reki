@@ -6,7 +6,7 @@ function endedCard(item, maxDays) {
   const usedY   = fmtYearsDecimal(days);
   const priced  = hasPrice(item);
   const cost    = priced ? dailyCost(item.actualPrice, days) : null;
-  const catIcon = CAT_ICONS[item.category] || '📦';
+  const catIcon = item.icon || CAT_ICONS[item.category] || '📦';
   const endYM   = item.endDate ? item.endDate.slice(0, 7).replace('-', '.') : '';
 
   const showWave = days > WAVE_THRESHOLD_DAYS;
@@ -98,7 +98,7 @@ function itemCard(item, maxDays) {
     ? `<span class="cv2-rank${rank==='SS'?' cv2-rank-ss':''}" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
     : '';
 
-  const catIcon = CAT_ICONS[item.category] || '📦';
+  const catIcon = item.icon || CAT_ICONS[item.category] || '📦';
 
   const metaParts = [];
   if (item.purchaseDate) metaParts.push(fmtDate(item.purchaseDate));
@@ -230,6 +230,9 @@ export function render(items) {
       const db = calcDays(b.startDate, b.endDate);
       if (_sort === 'years_desc') return db - da;
       if (_sort === 'years_asc')  return da - db;
+      if (_sort === 'name_asc')   return a.name.localeCompare(b.name, 'ja');
+      if (_sort === 'name_desc')  return b.name.localeCompare(a.name, 'ja');
+      if (_sort === 'created_desc') return (b.createdAt || '').localeCompare(a.createdAt || '');
       const ca = hasPrice(a) ? dailyCost(a.actualPrice, da) : (_sort === 'cost_asc' ? Infinity : -Infinity);
       const cb = hasPrice(b) ? dailyCost(b.actualPrice, db) : (_sort === 'cost_asc' ? Infinity : -Infinity);
       if (_sort === 'cost_asc')  return ca - cb;
@@ -269,10 +272,13 @@ export function render(items) {
         ${cats.map(c => `<button class="filter-chip ${_filter===c?'active':''}" data-cat="${c}">${c==='all'?'すべて':c}</button>`).join('')}
       </div>
       <select class="sort-select" id="sort-select">
-        <option value="years_desc" ${_sort==='years_desc'?'selected':''}>年数↓</option>
-        <option value="years_asc"  ${_sort==='years_asc' ?'selected':''}>年数↑</option>
-        <option value="cost_asc"   ${_sort==='cost_asc'  ?'selected':''}>コスト↑</option>
-        <option value="cost_desc"  ${_sort==='cost_desc' ?'selected':''}>コスト↓</option>
+        <option value="years_desc"   ${_sort==='years_desc'   ?'selected':''}>年数↓</option>
+        <option value="years_asc"    ${_sort==='years_asc'    ?'selected':''}>年数↑</option>
+        <option value="cost_asc"     ${_sort==='cost_asc'     ?'selected':''}>コスト↑</option>
+        <option value="cost_desc"    ${_sort==='cost_desc'    ?'selected':''}>コスト↓</option>
+        <option value="name_asc"     ${_sort==='name_asc'     ?'selected':''}>名前↑</option>
+        <option value="name_desc"    ${_sort==='name_desc'    ?'selected':''}>名前↓</option>
+        <option value="created_desc" ${_sort==='created_desc' ?'selected':''}>追加↓</option>
       </select>
     </div>
 

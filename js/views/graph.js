@@ -1,5 +1,5 @@
 import { CATEGORIES, calcDays, fmtYearsDecimal, dailyCost, hasPrice,
-         getRank, RANK_META } from '../utils.js';
+         getRank, RANK_META, fmtCurrency } from '../utils.js';
 
 const CAT_COLORS = {
   'スマホ':    '#3b82f6', 'PC':        '#8b5cf6', 'タブレット':'#a78bfa',
@@ -57,6 +57,35 @@ function buildInsights(items) {
       <div class="gi-sub">${longest.name}</div>
     </div>
   </div>`;
+}
+
+// ── ランク分布 ──────────────────────────────────────
+function buildRankDist(items) {
+  const active = items.filter(i => !i.endDate);
+  if (active.length < 3) return '';
+  const counts = { SS:0, S:0, A:0, B:0, C:0, D:0 };
+  for (const item of active) {
+    const days  = calcDays(item.startDate);
+    const avg   = (CATEGORIES[item.category] || 5);
+    const ratio = days / (avg * 365);
+    const rank  = getRank(ratio);
+    if (rank) counts[rank]++;
+  }
+  const total = active.length;
+  const bars = Object.entries(counts).map(([rank, n]) => {
+    const meta = RANK_META[rank];
+    const pct  = total > 0 ? (n / total) * 100 : 0;
+    if (!n) return '';
+    return `
+    <div class="rd-row">
+      <span class="rd-rank" style="background:${meta.bg};color:${meta.text}">${rank}</span>
+      <div class="rd-track">
+        <div class="rd-fill" style="width:${pct.toFixed(1)}%;background:${meta.border}"></div>
+      </div>
+      <span class="rd-count">${n}</span>
+    </div>`;
+  }).join('');
+  return `<div class="rd-wrap">${bars}</div>`;
 }
 
 // ── 年数タイムライン ────────────────────────────────
@@ -209,6 +238,7 @@ export function render(items) {
   <div id="graph-view">
     <div class="section">
       ${buildInsights(items)}
+      ${buildRankDist(items)}
       <div class="g-view-tabs">${viewTabs}</div>
       ${body}
     </div>

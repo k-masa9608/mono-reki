@@ -7,6 +7,8 @@ import * as SimulatorView from './views/simulator.js';
 import * as SettingsView  from './views/settings.js';
 import * as GraphView     from './views/graph.js';
 import * as RankingView    from './views/ranking.js';
+import * as Onboarding    from './views/onboarding.js';
+import * as WishlistView  from './views/wishlist.js';
 
 const appHeader    = document.getElementById('app-header');
 const main         = document.getElementById('main-content');
@@ -69,7 +71,7 @@ modalSheet?.addEventListener('touchend', e => {
 
 // ── Bottom nav helper ──
 const bottomNav = document.getElementById('bottom-nav');
-const MAIN_VIEWS = new Set(['list', 'simulator', 'graph', 'settings']);
+const MAIN_VIEWS = new Set(['list', 'simulator', 'graph', 'wishlist', 'settings']);
 
 function updateBottomNav(view) {
   if (!bottomNav) return;
@@ -105,7 +107,7 @@ function headerMain(searchVal = '') {
     </div>`;
 }
 
-function headerBack(title) {
+function headerBack(title, showAdd = false) {
   return `
     <div class="header-top">
       <button class="btn-back" id="btn-back" aria-label="戻る">
@@ -114,7 +116,9 @@ function headerBack(title) {
         </svg>
       </button>
       <span class="brand-main" style="font-size:16px;flex:1;padding:0 8px">${title}</span>
-      <span style="width:52px"></span>
+      ${showAdd
+        ? `<button class="btn-add" id="btn-add">＋</button>`
+        : `<span style="width:52px"></span>`}
     </div>`;
 }
 
@@ -127,7 +131,10 @@ function navigate(view, params = {}) {
 }
 
 async function renderView(view, params = {}) {
-  const items = await DB.getAll();
+  const _all  = await DB.getAll();
+  const items = view === 'wishlist' || view === 'wishlist-add'
+    ? _all
+    : _all.filter(i => !i.wishlist);
 
   switch (view) {
     case 'list': {
@@ -179,6 +186,41 @@ async function renderView(view, params = {}) {
       bindHeaderMain();
       break;
     }
+    case 'wishlist': {
+      appHeader.innerHTML = headerBack('欲しいものリスト', true);
+      main.innerHTML = WishlistView.render(items);
+      WishlistView.init(items, navigate,
+        async id => {
+          if (!confirm('リストから削除しますか？')) return;
+          await DB.delete(id);
+          showToast('削除しました', 'error');
+          navigate('wishlist');
+        },
+        async id => {
+          const wish = await DB.get(id);
+          if (!wish) return;
+          // 購入した → 通常アイテム追加フォームへ引き継ぎ
+          navigate('add', { fromWishId: id });
+        }
+      );
+      document.getElementById('btn-back')?.addEventListener('click', () => navigate('list'));
+      document.getElementById('btn-add')?.addEventListener('click', () => navigate('wishlist-add'));
+      break;
+    }
+    case 'wishlist-add': {
+      appHeader.innerHTML = headerBack('欲しいものを追加');
+      main.innerHTML = `<div class="section" style="margin-top:10px">${WishlistView.renderAddForm()}</div>`;
+      WishlistView.initAddForm(
+        async item => {
+          await DB.put(item);
+          showToast('リストに追加しました ✓');
+          navigate('wishlist');
+        },
+        () => navigate('wishlist')
+      );
+      document.getElementById('btn-back')?.addEventListener('click', () => navigate('wishlist'));
+      break;
+    }
     case 'ranking': {
       appHeader.innerHTML = headerMain();
       main.innerHTML = RankingView.render(items);
@@ -193,9 +235,24 @@ async function renderView(view, params = {}) {
         const src = await DB.get(params.fromId);
         if (src) prefill = { ...src, startDate: today(), purchaseDate: null, endDate: null, disposalReason: null };
       }
-      appHeader.innerHTML = headerBack(prefill ? '複製して追加' : 'アイテムを追加');
+      if (params.fromWishId) {
+        const wish = await DB.get(params.fromWishId);
+        if (wish) prefill = {
+          name: wish.name, category: wish.category, icon: wish.icon || null,
+          actualPrice: wish.targetPrice || null, listPrice: null,
+          startDate: today(), purchaseDate: null, endDate: null,
+          memo: wish.memo || '', usageFreq: null, purchasePlace: null,
+          prevItemId: null, photo: null, disposalReason: null,
+        };
+      }
+      const addTitle = params.fromWishId ? '購入アイテムを登録' : prefill ? '複製して追加' : 'アイテムを追加';
+      appHeader.innerHTML = headerBack(addTitle);
       main.innerHTML = FormView.render(prefill, endedItems);
-      FormView.init(null, navigate, async item => { await DB.put(item); showToast('追加しました ✓'); }, endedItems);
+      FormView.init(null, navigate, async item => {
+        await DB.put(item);
+        if (params.fromWishId) await DB.delete(params.fromWishId);
+        showToast('追加しました ✓');
+      }, endedItems);
       bindHeaderBack('add', params);
       break;
     }
@@ -242,6 +299,10 @@ window.addEventListener('popstate', e => {
 const SEED_VERSION = '3';
 
 async function boot() {
+  // テーマ復元
+  const savedTheme = localStorage.getItem('mono_theme');
+  if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
   // wire up bottom nav once
   bottomNav?.querySelectorAll('.bnav-item[data-view]').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.view));
@@ -258,6 +319,9 @@ async function boot() {
   }
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.error);
+
+  // オンボーディング（初回のみ）
+  if (Onboarding.shouldShow()) Onboarding.show();
 }
 
 boot();

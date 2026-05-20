@@ -83,6 +83,20 @@ export function render(items = []) {
       </div>
     </div>
 
+    <div class="section" style="margin-top:10px">
+      <div class="section-title">🎨 テーマ</div>
+      <div class="settings-group">
+        <div class="settings-row">
+          <div class="settings-row-body">
+            <div class="settings-row-label">ダークモード</div>
+          </div>
+          <button class="theme-toggle" id="btn-theme">
+            <span id="theme-icon">${typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? '☀️' : '🌙'}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="section">
       <div class="section-title">🗑 データリセット</div>
       <div class="settings-group">
@@ -102,6 +116,15 @@ export function render(items = []) {
 }
 
 export function init(navigate) {
+  document.getElementById('btn-theme')?.addEventListener('click', () => {
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('mono_theme', next);
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.textContent = next === 'dark' ? '☀️' : '🌙';
+  });
+
   document.getElementById('btn-export')?.addEventListener('click', async () => {
     const items = await DB.getAll();
     const json  = JSON.stringify(items, null, 2);

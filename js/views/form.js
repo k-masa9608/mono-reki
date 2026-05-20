@@ -79,8 +79,12 @@ export function render(item = null, endedItems = []) {
 
       <div class="form-group">
         <label class="form-label" for="f-name">商品名</label>
-        <input class="form-input form-input-lg" id="f-name" type="text"
-               value="${d.name}" placeholder="例：iPhone 15 Pro" autocomplete="off" required>
+        <div class="name-icon-row">
+          <button type="button" class="icon-pick-btn" id="icon-pick-btn" title="アイコンを変更">${d.icon || CAT_ICONS[d.category] || '📦'}</button>
+          <input class="form-input form-input-lg" id="f-name" type="text"
+                 value="${d.name}" placeholder="例：iPhone 15 Pro" autocomplete="off" required>
+        </div>
+        <input type="hidden" id="f-icon" value="${d.icon || ''}">
       </div>
 
       <div class="form-group" style="margin-top:14px">
@@ -219,6 +223,35 @@ export function init(existingItem, navigate, saveItem, endedItems = []) {
     });
   });
 
+  // icon picker (inline popover with common emojis)
+  const ICON_EMOJIS = ['📱','💻','📟','🎧','📷','🎮','⌚','🎒','👔','📺','🪑','🚲','🎸','🚗',
+                        '🏋️','🍳','📚','🧴','💊','🛋️','🖥️','🖨️','🎹','🎺','🎻','🏀','⚽','🎯'];
+  document.getElementById('icon-pick-btn')?.addEventListener('click', () => {
+    const existing = document.getElementById('icon-popover');
+    if (existing) { existing.remove(); return; }
+    const btn = document.getElementById('icon-pick-btn');
+    const pop = document.createElement('div');
+    pop.id = 'icon-popover';
+    pop.className = 'icon-popover';
+    pop.innerHTML = ICON_EMOJIS.map(e =>
+      `<button type="button" class="icon-pop-item">${e}</button>`
+    ).join('') + `<button type="button" class="icon-pop-reset">リセット</button>`;
+    btn.insertAdjacentElement('afterend', pop);
+    pop.querySelectorAll('.icon-pop-item').forEach(el => {
+      el.addEventListener('click', () => {
+        document.getElementById('f-icon').value = el.textContent;
+        document.getElementById('icon-pick-btn').textContent = el.textContent;
+        pop.remove();
+      });
+    });
+    pop.querySelector('.icon-pop-reset')?.addEventListener('click', () => {
+      document.getElementById('f-icon').value = '';
+      const cat = document.getElementById('f-cat').value;
+      document.getElementById('icon-pick-btn').textContent = CAT_ICONS[cat] || '📦';
+      pop.remove();
+    });
+  });
+
   // photo
   document.getElementById('photo-upload-area')?.addEventListener('click', () =>
     document.getElementById('f-photo')?.click()
@@ -247,6 +280,11 @@ export function init(existingItem, navigate, saveItem, endedItems = []) {
       document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('f-cat').value = btn.dataset.cat;
+      // アイコンにカスタム設定がなければカテゴリアイコンに追従
+      if (!document.getElementById('f-icon').value) {
+        const iconBtn = document.getElementById('icon-pick-btn');
+        if (iconBtn) iconBtn.textContent = CAT_ICONS[btn.dataset.cat] || '📦';
+      }
       const wrap = document.getElementById('prev-item-wrap');
       if (wrap) wrap.innerHTML = buildPrevOpts(endedItems, btn.dataset.cat, null);
     });
@@ -309,6 +347,7 @@ export function init(existingItem, navigate, saveItem, endedItems = []) {
     const item = {
       id:            existingItem?.id || genId(),
       name,
+      icon:          document.getElementById('f-icon').value.trim() || null,
       category:      document.getElementById('f-cat').value,
       startDate:     document.getElementById('f-start').value,
       purchaseDate:  document.getElementById('f-purchase').value || null,

@@ -490,13 +490,7 @@ body {
   border-radius: 8px; margin: 4px 0;
 }
 .mc-savings strong { color: #166534; }
-.mc-delete-btn {
-  display: block; width: 100%; margin-top: 10px; padding: 8px;
-  background: none; border: none; font-size: 13px;
-  color: #ef4444; cursor: pointer; font-family: var(--font-ui);
-  text-align: center; opacity: .6;
-}
-.mc-delete-btn:active { opacity: 1; }
+/* mc-delete-btn → mc-actions 内で定義 */
 .modal-reg-btn {
   width: 100%; margin-top: 10px; padding: 9px;
   background: none; border: 1.5px dashed var(--border-m);
@@ -1250,4 +1244,227 @@ body {
   border: none; font-size: 14px; font-weight: 600;
   background: #f1f5f9; color: var(--text-lt);
   text-align: center; cursor: pointer;
+}
+
+/* ── Dark mode ── */
+[data-theme="dark"] {
+  --bg:       #0f172a;
+  --slate:    #1e293b;
+  --border:   #334155;
+  --border-m: #475569;
+  --text:     #f1f5f9;
+  --text-m:   #cbd5e1;
+  --text-lt:  #64748b;
+  --blue-lt:  #1e3a5f;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4);
+}
+[data-theme="dark"] .app-header {
+  background: rgba(15,23,42,0.88);
+}
+[data-theme="dark"] .bottom-nav {
+  background: rgba(15,23,42,0.92);
+}
+[data-theme="dark"] .summary-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+}
+[data-theme="dark"] .modal-sheet {
+  background: #1e293b;
+}
+[data-theme="dark"] .header-search-box {
+  background: #1e293b;
+}
+
+.theme-toggle {
+  width: 44px; height: 28px; border-radius: 14px;
+  background: var(--border-m); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: background .2s;
+}
+[data-theme="dark"] .theme-toggle { background: var(--blue); }
+
+/* ── ⑦ カスタムアイコン ── */
+.name-icon-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.name-icon-row .form-input-lg { flex: 1; }
+.icon-pick-btn {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--border); border: 1.5px solid var(--border-m);
+  font-size: 22px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  flex-shrink: 0; transition: border-color .15s;
+}
+.icon-pick-btn:active { border-color: var(--blue); }
+.icon-popover {
+  position: absolute; z-index: 200;
+  background: var(--bg); border: 1px solid var(--border-m);
+  border-radius: 12px; padding: 10px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  width: 260px; box-shadow: var(--shadow);
+  margin-top: 4px;
+}
+.icon-pop-item {
+  width: 38px; height: 38px; border-radius: 8px;
+  border: 1px solid transparent; background: var(--border);
+  font-size: 20px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+}
+.icon-pop-item:active { background: var(--blue-lt); }
+.icon-pop-reset {
+  width: 100%; padding: 6px 0; border-radius: 8px;
+  border: 1px solid var(--border-m); background: none;
+  color: var(--text-m); font-size: 12px; cursor: pointer;
+  font-family: var(--font-ui);
+}
+
+/* ── ① シェアボタン ── */
+.mc-actions {
+  display: flex; gap: 8px; margin-top: 12px;
+}
+.mc-share-btn {
+  flex: 1; padding: 10px 0; border-radius: 10px;
+  background: var(--blue-lt); color: var(--blue);
+  border: 1.5px solid var(--blue); font-size: 13px;
+  font-weight: 600; font-family: var(--font-ui); cursor: pointer;
+  transition: opacity .15s;
+}
+.mc-share-btn:active { opacity: .7; }
+.mc-delete-btn {
+  flex: 1; padding: 10px 0; border-radius: 10px;
+  background: #fef2f2; color: #ef4444;
+  border: 1.5px solid #fca5a5; font-size: 13px;
+  font-weight: 600; font-family: var(--font-ui); cursor: pointer;
+  transition: opacity .15s;
+}
+.mc-delete-btn:active { opacity: .7; }
+
+/* ── ③ オンボーディング ── */
+.ob-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; transition: opacity .3s;
+}
+.ob-overlay.ob-show { opacity: 1; }
+.ob-overlay.ob-hide { opacity: 0; }
+.ob-sheet {
+  width: 100%; max-width: 480px;
+  background: var(--bg); border-radius: 20px 20px 0 0;
+  padding: 32px 24px 48px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; text-align: center;
+  transform: translateY(40px);
+  transition: transform .35s cubic-bezier(.22,1,.36,1);
+}
+.ob-overlay.ob-show .ob-sheet { transform: translateY(0); }
+.ob-emoji { font-size: 52px; line-height: 1; }
+.ob-title { font-size: 20px; font-weight: 700; color: var(--text); }
+.ob-body  { font-size: 14px; color: var(--text-m); line-height: 1.6; max-width: 280px; }
+.ob-dots  { display: flex; gap: 6px; margin: 4px 0; }
+.ob-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--border-m); transition: background .2s; }
+.ob-dot.active { background: var(--blue); }
+.ob-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  background: var(--blue); color: #fff;
+  border: none; font-size: 15px; font-weight: 700;
+  font-family: var(--font-ui); cursor: pointer;
+  margin-top: 4px;
+}
+.ob-skip {
+  background: none; border: none; color: var(--text-lt);
+  font-size: 13px; cursor: pointer; font-family: var(--font-ui);
+}
+
+/* ── ⑥ ランク分布 ── */
+.rd-wrap {
+  margin: 8px 0 12px; display: flex; flex-direction: column; gap: 5px;
+}
+.rd-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.rd-rank {
+  width: 28px; height: 18px; border-radius: 5px;
+  font-size: 10px; font-weight: 700; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
+}
+.rd-track {
+  flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+}
+.rd-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.rd-count { width: 18px; font-size: 11px; color: var(--text-m); text-align: right; flex-shrink: 0; }
+
+/* ── ⑫ 欲しいものリスト ── */
+#wishlist-view { padding: 10px 0 80px; }
+.wl-list { display: flex; flex-direction: column; gap: 10px; padding: 0 10px; }
+
+.wl-card {
+  background: var(--bg); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+  border: 1.5px solid var(--border-m);
+}
+.wl-card-top {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 12px 8px;
+}
+.wl-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.wl-card-body { flex: 1; min-width: 0; }
+.wl-card-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.wl-card-meta {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  align-items: center; margin-top: 3px;
+}
+.wl-cat {
+  font-size: 11px; color: var(--text-m);
+  background: var(--border); border-radius: 4px; padding: 1px 6px;
+}
+.wl-price { font-size: 13px; font-weight: 700; color: var(--text); }
+.wl-priority { font-size: 11px; font-weight: 600; }
+.wl-memo { font-size: 11px; color: var(--text-m); margin-top: 4px; }
+
+.wl-delete-btn {
+  background: none; border: none; color: var(--text-lt);
+  font-size: 14px; cursor: pointer; padding: 4px; flex-shrink: 0;
+}
+
+/* 比較エリア */
+.wl-cmp {
+  margin: 0 12px 8px;
+  background: var(--border);
+  border-radius: 8px; padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.wl-cmp-row { display: flex; align-items: center; gap: 6px; }
+.wl-cmp-icon { font-size: 14px; }
+.wl-cmp-name { font-size: 12px; color: var(--text-m); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wl-replace-badge {
+  font-size: 10px; font-weight: 700; background: #fef2f2;
+  color: #ef4444; border-radius: 4px; padding: 1px 6px;
+  border: 1px solid #fca5a5; flex-shrink: 0;
+}
+.wl-using-badge {
+  font-size: 10px; color: var(--text-lt); flex-shrink: 0;
+}
+
+/* 購入ボタン */
+.wl-card-actions { padding: 0 12px 12px; }
+.wl-buy-btn {
+  width: 100%; padding: 9px; border-radius: 8px;
+  background: var(--blue); color: #fff;
+  border: none; font-size: 13px; font-weight: 700;
+  font-family: var(--font-ui); cursor: pointer;
+}
+.wl-buy-btn:active { opacity: .8; }
+
+/* 優先度ボタン行 */
+.wl-priority-row { display: flex; gap: 8px; margin-top: 6px; }
+.wl-pri-btn {
+  flex: 1; padding: 7px 0; border-radius: 8px;
+  border: 1.5px solid var(--border-m);
+  background: var(--border); color: var(--text-m);
+  font-size: 13px; font-weight: 600;
+  font-family: var(--font-ui); cursor: pointer;
+  transition: all .15s;
+}
+.wl-pri-btn.active {
+  background: var(--blue); color: #fff; border-color: var(--blue);
 }

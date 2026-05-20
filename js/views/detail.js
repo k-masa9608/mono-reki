@@ -164,7 +164,10 @@ export function renderModal(item, allItems = []) {
 
     ${!priced ? `<button class="modal-reg-btn" id="modal-reg-price">¥ 購入金額を登録する →</button>` : ''}
 
-    <button class="mc-delete-btn" id="modal-delete-btn">削除</button>
+    <div class="mc-actions">
+      <button class="mc-share-btn" id="modal-share-btn">🔗 シェア</button>
+      <button class="mc-delete-btn" id="modal-delete-btn">削除</button>
+    </div>
   </div>`;
 }
 
@@ -177,6 +180,20 @@ export function initModal(item, navigate, closeModal, deleteItem, openModal = nu
   document.getElementById('modal-reg-price')?.addEventListener('click', () => {
     closeModal();
     navigate('edit', { id: item.id });
+  });
+  document.getElementById('modal-share-btn')?.addEventListener('click', async () => {
+    const days = calcDays(item.startDate, item.endDate);
+    const yrs  = fmtYearsDecimal(days);
+    const text = `「${item.name}」を${yrs}年使っています！ #モノ歴`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'モノ歴', text }); } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        const btn = document.getElementById('modal-share-btn');
+        if (btn) { btn.textContent = '✓ コピーしました'; setTimeout(() => { btn.textContent = '🔗 シェア'; }, 2000); }
+      } catch {}
+    }
   });
   // チェーンノードをタップで別アイテムのモーダルを開く
   if (openModal) {
