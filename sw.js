@@ -1,4 +1,4 @@
-const CACHE = 'nannenshita-v2';
+const CACHE = 'mono-reki-v1';
 const ASSETS = [
   './',
   './index.html',
@@ -6,12 +6,15 @@ const ASSETS = [
   './css/style.css',
   './js/db.js',
   './js/utils.js',
+  './js/app.js',
   './js/views/list.js',
   './js/views/detail.js',
   './js/views/form.js',
   './js/views/simulator.js',
-  './js/views/ranking.js',
-  './js/app.js',
+  './js/views/graph.js',
+  './js/views/settings.js',
+  './js/views/onboarding.js',
+  './js/views/wishlist.js',
   './icons/icon.svg',
 ];
 
