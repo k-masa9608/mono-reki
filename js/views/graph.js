@@ -145,8 +145,11 @@ function renderYears(items) {
   const axisHtml = yearMarkers.map(m=>`<div class="tl-year-tick" style="left:${m.pct.toFixed(1)}%">${m.year}</div>`).join('');
 
   return {
-    controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">薄い色＝終了済み・タップで詳細</div>`,
-    body: `<div class="tl-wrap"><div class="tl-axis">${axisHtml}</div><div class="tl-rows">${rowsHtml}</div></div>`,
+    controls: `
+      <div class="tl-sort-row">${sortBtns}</div>
+      <div class="tl-hint">薄い色＝終了済み・タップで詳細</div>
+      <div class="tl-axis-header">${axisHtml}</div>`,
+    body: `<div class="tl-wrap"><div class="tl-rows">${rowsHtml}</div></div>`,
   };
 }
 

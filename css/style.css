@@ -1504,3 +1504,9 @@ body {
 }
 .graph-header-controls .g-view-tabs { margin-bottom: 8px; }
 .graph-header-controls .tl-controls { margin-bottom: 0; }
+
+/* ── 年軸（ヘッダー固定） ── */
+.tl-axis-header {
+  position: relative; height: 14px;
+  margin-left: 88px; margin-top: 4px;
+}
