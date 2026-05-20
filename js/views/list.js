@@ -244,8 +244,19 @@ export function render(items) {
   const allDaysInList = list.map(i => calcDays(i.startDate, i.endDate));
   const maxDays = Math.max(...allDaysInList, 365);
 
+  // デモデータ検出（ID '1'〜'19' のどれかがあればデモ中）
+  const DEMO_IDS = new Set(['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19']);
+  const hasDemo = items.some(i => DEMO_IDS.has(i.id));
+  const demoBanner = hasDemo ? `
+    <div class="demo-banner">
+      📦 デモデータ表示中
+      <button class="demo-reset-btn" id="btn-reset-demo">× リセット</button>
+    </div>` : '';
+
   return `
   <div id="list-view">
+
+    ${demoBanner}
 
     <div class="summary-card">
       <div class="sc-stat">
