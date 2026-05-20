@@ -144,15 +144,10 @@ function renderYears(items) {
     .map(([v,l])=>`<button class="tl-sort-btn${_timeSort===v?' active':''}" data-tsort="${v}">${l}</button>`).join('');
   const axisHtml = yearMarkers.map(m=>`<div class="tl-year-tick" style="left:${m.pct.toFixed(1)}%">${m.year}</div>`).join('');
 
-  return `
-  <div class="tl-controls">
-    <div class="tl-sort-row">${sortBtns}</div>
-    <div class="tl-hint">薄い色＝終了済み・タップで詳細</div>
-  </div>
-  <div class="tl-wrap">
-    <div class="tl-axis">${axisHtml}</div>
-    <div class="tl-rows">${rowsHtml}</div>
-  </div>`;
+  return {
+    controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">薄い色＝終了済み・タップで詳細</div>`,
+    body: `<div class="tl-wrap"><div class="tl-axis">${axisHtml}</div><div class="tl-rows">${rowsHtml}</div></div>`,
+  };
 }
 
 // ── コスト・回数バーチャート ─────────────────────────
@@ -215,12 +210,10 @@ function renderCostBars(items) {
     </div>`;
   }).join('');
 
-  return `
-  <div class="tl-controls">
-    <div class="tl-sort-row">${sortBtns}</div>
-    <div class="tl-hint">¥/回は使用頻度登録済みのアイテムのみ有効</div>
-  </div>
-  <div class="cb-list">${rows}</div>`;
+  return {
+    controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">¥/回は使用頻度登録済みのみ有効</div>`,
+    body: `<div class="cb-list">${rows}</div>`,
+  };
 }
 
 // ── render ──────────────────────────────────────────
@@ -232,14 +225,19 @@ export function render(items) {
   const viewTabs = [['years','年数'],['cost','コスト・回数']]
     .map(([v,l])=>`<button class="g-view-tab${_view===v?' active':''}" data-view="${v}">${l}</button>`).join('');
 
-  const body = _view==='years' ? renderYears(items) : renderCostBars(items);
+  const { controls, body } = _view==='years' ? renderYears(items) : renderCostBars(items);
 
   return `
   <div id="graph-view">
     <div class="section">
       ${buildInsights(items)}
       ${buildRankDist(items)}
+    </div>
+    <div class="graph-sticky">
       <div class="g-view-tabs">${viewTabs}</div>
+      <div class="tl-controls">${controls}</div>
+    </div>
+    <div class="section graph-body">
       ${body}
     </div>
   </div>`;

@@ -1482,3 +1482,13 @@ body {
   color: #854d0e; cursor: pointer; font-family: var(--font-ui);
 }
 .demo-reset-btn:active { opacity: .7; }
+
+/* ── グラフ sticky コントロール ── */
+.graph-sticky {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--slate);
+  border-bottom: 1px solid var(--border-m);
+  padding: 8px 12px 6px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.graph-body { padding-top: 8px; }
