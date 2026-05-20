@@ -147,11 +147,11 @@ function renderYears(items) {
   return {
     controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">薄い色＝終了済み・タップで詳細</div>`,
     body: `
+      <div class="tl-axis-row">
+        <div class="tl-axis-spacer"></div>
+        <div class="tl-axis-marks">${axisHtml}</div>
+      </div>
       <div class="tl-wrap">
-        <div class="tl-axis-row">
-          <div class="tl-axis-spacer"></div>
-          <div class="tl-axis-marks">${axisHtml}</div>
-        </div>
         <div class="tl-rows">${rowsHtml}</div>
       </div>`,
   };
