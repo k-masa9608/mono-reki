@@ -222,7 +222,10 @@ function renderCostBars(items) {
 // ── render ──────────────────────────────────────────
 export function render(items) {
   if (!items.length) {
-    return `<div class="empty-state"><p class="empty-icon">📅</p><p class="empty-text">アイテムがありません</p><p class="empty-sub">ヘッダーの＋ボタンで追加しよう</p></div>`;
+    return {
+      headerExtra: '',
+      body: `<div class="empty-state"><p class="empty-icon">📅</p><p class="empty-text">アイテムがありません</p><p class="empty-sub">ヘッダーの＋ボタンで追加しよう</p></div>`,
+    };
   }
 
   const viewTabs = [['years','年数'],['cost','コスト・回数']]

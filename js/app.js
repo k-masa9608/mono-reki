@@ -315,15 +315,8 @@ async function boot() {
     btn.addEventListener('click', () => navigate(btn.dataset.view));
   });
 
-  const hash = location.hash.replace('#', '');
-  if (hash) {
-    const [view, qs] = hash.split('?');
-    const params = {};
-    if (qs) qs.split('&').forEach(p => { const [k, v] = p.split('='); params[k] = v; });
-    renderView(view, params);
-  } else {
-    renderView('list');
-  }
+  // 常に一覧から開始（hash は無視）
+  renderView('list');
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.error);
 
