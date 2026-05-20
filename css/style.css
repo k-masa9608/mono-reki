@@ -1513,3 +1513,21 @@ body {
   position: relative; height: 14px;
   margin-left: 88px; margin-top: 4px;
 }
+
+/* ── 年表パネル（年軸固定 + 行スクロール） ── */
+.tl-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 62dvh;
+}
+.tl-axis-row {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-m);
+  padding: 2px 0;
+  background: var(--slate);
+}
+.tl-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
