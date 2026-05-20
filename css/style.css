@@ -907,10 +907,14 @@ body {
 .tl-sort-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 .tl-hint { font-size: 9px; color: var(--text-lt); font-weight: 600; }
 
-.tl-wrap { overflow-x: hidden; }
+.tl-wrap { overflow-x: clip; }
 .tl-axis {
-  position: relative; height: 16px;
+  position: sticky; top: 0; z-index: 10;
+  background: var(--slate);
+  display: flex; align-items: center;
+  height: 20px;
   margin-left: 88px; margin-bottom: 3px;
+  border-bottom: 1px solid var(--border-m);
 }
 .tl-year-tick {
   position: absolute; transform: translateX(-50%);
