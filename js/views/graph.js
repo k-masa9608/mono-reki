@@ -161,13 +161,13 @@ function renderYears(items) {
       ? `<div class="tl-rank-col"><span class="tl-rank-col-badge" style="background:${meta.bg};color:${meta.text}">${rank}</span></div>`
       : `<div class="tl-rank-col"></div>`;
 
-    // 平均年数ラインの位置（使用開始日 + 平均日数）
+    // 平均年数マークの位置（使用開始日 + 平均日数）
     const avgDate = new Date(start.getTime() + avg * 365 * 86400000);
     const avgPct  = (avgDate - minDate) / totalMs * 100;
     const overAvg = days >= avg * 365;
     // バー内に収まるときだけ表示
     const avgLine = overAvg && avgPct >= left && avgPct <= left + Math.max(width, 0.5)
-      ? `<div class="tl-avg-line" style="left:${avgPct.toFixed(1)}%"></div>`
+      ? `<div class="tl-avg-mark" style="left:${avgPct.toFixed(1)}%"><span class="tl-avg-lbl">平均${avg}年</span></div>`
       : '';
 
     rowsHtml += `
