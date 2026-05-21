@@ -60,7 +60,7 @@ export function render(items) {
         const glow   = rank === 'SS' ? ' ss-glow' : '';
         const ended  = !!item.endDate;
 
-        const badge = priced && meta
+        const badge = meta
           ? `<span class="rank-badge${glow}" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
           : `<span class="rank-badge-none">—</span>`;
 
