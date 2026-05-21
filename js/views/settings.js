@@ -1,5 +1,5 @@
 import { DB } from '../db.js';
-import { today, CATEGORIES, calcDays, dailyCost, hasPrice, fmtCurrency,
+import { today, CATEGORIES, DEMO_ITEMS, calcDays, dailyCost, hasPrice, fmtCurrency,
          getCatAvg, setCatAvg, resetCatAvgs } from '../utils.js';
 
 function buildStats(items) {
@@ -87,6 +87,14 @@ export function render(items = []) {
             <div class="settings-row-sub">同じIDは上書き、新規IDは追加します</div>
           </div>
           <button class="settings-btn" id="btn-import-trigger">読み込む</button>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <div class="settings-row-body">
+            <div class="settings-row-label">デモデータを追加</div>
+            <div class="settings-row-sub">既存データを残したままデモを追加します</div>
+          </div>
+          <button class="settings-btn" id="btn-add-demo">追加</button>
         </div>
         <input type="file" id="import-file" accept=".json" style="display:none">
       </div>
@@ -210,6 +218,12 @@ export function init(navigate) {
       showResult(`❌ 読み込み失敗: ${err.message}`, true);
     }
     e.target.value = '';
+  });
+
+  document.getElementById('btn-add-demo')?.addEventListener('click', async () => {
+    const now = new Date().toISOString();
+    for (const demo of DEMO_ITEMS) await DB.put({ ...demo, createdAt: now, updatedAt: now });
+    showResult(`✅ デモデータ ${DEMO_ITEMS.length}件を追加しました`, false);
   });
 
   // category avg steppers
