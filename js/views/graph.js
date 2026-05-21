@@ -117,8 +117,12 @@ function renderYears(items) {
   });
   const hiddenCount = items.length - visibleItems.length;
 
+  // 範囲が広いほど年ラベルを間引く（重なり防止）
+  const yearSpan = maxDate.getFullYear() - minDate.getFullYear();
+  const step = yearSpan > 12 ? 3 : yearSpan > 6 ? 2 : 1;
+  const startY = Math.ceil((minDate.getFullYear() + 1) / step) * step;
   const yearMarkers = [];
-  for (let y=minDate.getFullYear()+1; y<=maxDate.getFullYear(); y++) {
+  for (let y=startY; y<=maxDate.getFullYear(); y+=step) {
     const pct = (new Date(y,0,1)-minDate)/totalMs*100;
     if (pct>2&&pct<98) yearMarkers.push({year:y,pct});
   }

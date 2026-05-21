@@ -201,6 +201,47 @@ body {
 .sv-detail { font-size: 10px; color: var(--text-lt); margin-top: 2px; }
 .sv-amount { font-size: 14px; font-weight: 800; color: #22c55e; flex-shrink: 0; }
 
+/* ── ランキングビュー ── */
+.rk-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px 4px; gap: 8px; flex-wrap: wrap;
+}
+.rk-tab-bar { margin: 0 !important; padding: 0 !important; }
+.rk-ended-btn.active { background: #64748b; border-color: #64748b; }
+.ranking-list { display: flex; flex-direction: column; gap: 6px; padding: 8px 12px 80px; }
+.rank-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border-radius: 12px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--border-m);
+  box-shadow: var(--shadow-sm); cursor: pointer;
+  transition: opacity .15s;
+}
+.rank-row.gold { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+.rank-row--ended { opacity: 0.55; }
+.rank-pos { font-size: 18px; width: 28px; flex-shrink: 0; text-align: center; }
+.rank-row-info { flex: 1; min-width: 0; }
+.rank-row-name {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 4px;
+}
+.rank-row-sub { font-size: 10px; color: var(--text-lt); margin-top: 2px; }
+.rank-badge {
+  flex-shrink: 0; font-size: 9px; font-weight: 800;
+  padding: 2px 6px; border-radius: 6px; letter-spacing: .3px;
+}
+.rank-badge-none { flex-shrink: 0; font-size: 9px; color: var(--text-lt); width: 28px; text-align: center; }
+.ss-glow { box-shadow: 0 0 8px rgba(200,100,255,.5); }
+.rank-row-right { flex-shrink: 0; text-align: right; }
+.rank-row-val { font-family: var(--font-num); font-size: 18px; display: block; line-height: 1.1; }
+.rank-row-unit { font-size: 9px; color: var(--text-lt); font-weight: 600; }
+.rk-ended-tag {
+  font-size: 8px; font-weight: 700; color: #64748b;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  border-radius: 4px; padding: 1px 4px; flex-shrink: 0;
+}
+
 /* ── 節約バナー ── */
 .savings-banner {
   display: flex; align-items: center; justify-content: space-between;
