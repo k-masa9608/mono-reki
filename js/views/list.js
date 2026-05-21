@@ -362,7 +362,64 @@ function _showQuickSheet(itemId, navigate, quickActions) {
   });
 }
 
-export function init(navigate, openModal, quickActions = {}) {
+function _showSavingsSheet(items) {
+  document.getElementById('savings-sheet-ov')?.remove();
+
+  const active = items.filter(i => !i.endDate && i.actualPrice);
+  const breakdown = active
+    .map(i => {
+      const days    = calcDays(i.startDate);
+      const avgDays = getCatAvg(i.category) * 365;
+      if (days <= avgDays) return null;
+      const saved = Math.round(i.actualPrice * (days - avgDays) / avgDays);
+      const overYrs = ((days - avgDays) / 365).toFixed(1);
+      const usedYrs = (days / 365).toFixed(1);
+      return { item: i, saved, overYrs, usedYrs, avg: getCatAvg(i.category) };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.saved - a.saved);
+
+  const total = breakdown.reduce((s, r) => s + r.saved, 0);
+  const CAT_IC = { 'スマホ':'📱','PC':'💻','タブレット':'📟','イヤホン':'🎧','カメラ':'📷','ゲーム機':'🎮','時計':'⌚','バッグ':'🎒','洋服':'👔','家電':'📺','家具':'🪑','自転車':'🚲','楽器':'🎸','車・バイク':'🚗' };
+
+  const rows = breakdown.map(({ item, saved, overYrs, usedYrs, avg }) => `
+    <div class="sv-row">
+      <span class="sv-icon">${item.icon || CAT_IC[item.category] || '📦'}</span>
+      <div class="sv-body">
+        <div class="sv-name">${item.name}</div>
+        <div class="sv-detail">平均${avg}年 → ${usedYrs}年使用（+${overYrs}年）</div>
+      </div>
+      <div class="sv-amount">+¥${saved.toLocaleString('ja-JP')}</div>
+    </div>`).join('');
+
+  const ov = document.createElement('div');
+  ov.id = 'savings-sheet-ov';
+  ov.className = 'quick-sheet-overlay';
+  const sheet = document.createElement('div');
+  sheet.className = 'quick-sheet sv-sheet';
+  sheet.innerHTML = `
+    <div class="qs-handle"></div>
+    <div class="sv-header">
+      <div class="sv-total-label">🎉 節約の内訳</div>
+      <div class="sv-total">¥${total.toLocaleString('ja-JP')}</div>
+      <div class="sv-formula">購入額 × 超過年数 ÷ カテゴリ平均年数</div>
+    </div>
+    <div class="sv-list">${rows}</div>
+    <button class="qs-btn qs-btn-cancel" id="sv-close">閉じる</button>`;
+
+  document.body.appendChild(ov);
+  document.body.appendChild(sheet);
+  requestAnimationFrame(() => { ov.classList.add('open'); sheet.classList.add('open'); });
+
+  const close = () => {
+    ov.classList.remove('open'); sheet.classList.remove('open');
+    setTimeout(() => { ov.remove(); sheet.remove(); }, 260);
+  };
+  ov.addEventListener('click', close);
+  sheet.querySelector('#sv-close').addEventListener('click', close);
+}
+
+export function init(navigate, openModal, quickActions = {}, items = []) {
   if (_searchTriggered) {
     _searchTriggered = false;
     const input = document.getElementById('search-input');
@@ -417,5 +474,9 @@ export function init(navigate, openModal, quickActions = {}) {
       e.stopPropagation();
       navigate('edit', { id: el.dataset.id });
     });
+  });
+
+  document.querySelector('.sc-savings')?.addEventListener('click', () => {
+    _showSavingsSheet(items);
   });
 }

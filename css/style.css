@@ -164,8 +164,42 @@ body {
 .sc-sep {
   width: 1px; height: 28px; background: rgba(255,255,255,.25); flex-shrink: 0;
 }
-.sc-savings { cursor: pointer; }
+.sc-savings {
+  cursor: pointer; position: relative;
+  -webkit-tap-highlight-color: rgba(255,255,255,.15);
+  transition: opacity .12s;
+}
+.sc-savings:active { opacity: .75; }
+.sc-savings .sc-lbl::after { content: ' ›'; font-size: 10px; opacity: .7; }
 .sc-savings-val { color: #bbf7d0 !important; }
+
+/* ── 節約内訳シート ── */
+.sv-sheet { max-height: 80dvh; overflow-y: auto; }
+.sv-header {
+  text-align: center; padding: 4px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sv-total-label { font-size: 13px; font-weight: 600; color: var(--text-m); margin-bottom: 4px; }
+.sv-total {
+  font-family: var(--font-num); font-size: 40px; color: #22c55e;
+  letter-spacing: -1px; line-height: 1.1;
+}
+.sv-formula {
+  font-size: 10px; color: var(--text-lt); margin-top: 6px;
+  background: var(--slate); display: inline-block;
+  padding: 3px 10px; border-radius: 20px;
+}
+.sv-list { padding: 8px 0; }
+.sv-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.sv-row:last-child { border-bottom: none; }
+.sv-icon { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
+.sv-body { flex: 1; min-width: 0; }
+.sv-name { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sv-detail { font-size: 10px; color: var(--text-lt); margin-top: 2px; }
+.sv-amount { font-size: 14px; font-weight: 800; color: #22c55e; flex-shrink: 0; }
 
 /* ── 節約バナー ── */
 .savings-banner {

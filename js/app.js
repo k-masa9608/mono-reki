@@ -155,7 +155,7 @@ async function renderView(view, params = {}) {
           showToast('削除しました', 'error');
           navigate('list');
         },
-      });
+      }, items);
       document.getElementById('btn-try-demo')?.addEventListener('click', async () => {
         const now = new Date().toISOString();
         for (const demo of DEMO_ITEMS) await DB.put({ ...demo, createdAt: now, updatedAt: now });
