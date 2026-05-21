@@ -19,6 +19,10 @@ function endedCard(item, maxDays) {
   const cost    = priced ? dailyCost(item.actualPrice, days) : null;
   const catIcon = item.icon || CAT_ICONS[item.category] || '📦';
   const endYM   = item.endDate ? item.endDate.slice(0, 7).replace('-', '.') : '';
+  const avg     = getCatAvg(item.category);
+  const ratio   = days / (avg * 365);
+  const rank    = getRank(ratio);
+  const meta    = rank ? RANK_META[rank] : null;
 
   const showWave = days > WAVE_THRESHOLD_DAYS;
   const barDays  = showWave ? maxDays : days;
@@ -28,12 +32,17 @@ function endedCard(item, maxDays) {
     ? `<span class="cv2-disposal">${item.disposalReason}</span>`
     : `<span class="cv2-cat">${item.category}</span>`;
 
+  const rankBadge = meta
+    ? `<span class="cv2-rank${rank==='SS'?' cv2-rank-ss':''}" style="background:${meta.bg};color:${meta.text};opacity:0.8">${rank}</span>`
+    : '';
+
   return `
   <div class="cv2 cv2-archived" data-id="${item.id}">
     <div class="cv2-row">
       <span class="cv2-icon">${catIcon}</span>
       <span class="cv2-name">${item.name}</span>
       ${reasonHtml}
+      ${rankBadge}
       <span class="cv2-years">${usedY}<small>年</small></span>
       ${priced ? `<span class="cv2-cost">${fmtCurrency(Math.round(cost))}/日</span>` : ''}
     </div>
