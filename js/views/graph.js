@@ -14,9 +14,10 @@ const CAT_ICONS = {
 };
 const FREQ_PER_YEAR = { '毎日':365, '週数回':156, '週1':52, '月数回':24, 'たまに':12 };
 
-let _view     = 'years';   // 'years' | 'cost'
-let _timeSort = 'cat';     // 'cat' | 'old' | 'new'
-let _costSort = 'day_asc'; // 'day_asc' | 'day_desc' | 'use_asc' | 'use_desc'
+let _view      = 'years';   // 'years' | 'cost'
+let _timeSort  = 'cat';     // 'cat' | 'old' | 'new'
+let _costSort  = 'day_asc'; // 'day_asc' | 'day_desc' | 'use_asc' | 'use_desc'
+let _timeRange = '5y';      // '3y' | '5y' | 'all'
 
 // ── インサイト ──────────────────────────────────────
 function buildInsights(items) {
@@ -92,13 +93,29 @@ function buildRankDist(items) {
 function renderYears(items) {
   const todayDate = new Date(); todayDate.setHours(0,0,0,0);
   const parseDate = s => new Date(s+'T00:00:00');
-  const allStarts = items.map(i=>parseDate(i.startDate));
-  const allEnds   = items.map(i=>i.endDate?parseDate(i.endDate):new Date(todayDate));
-  let minDate = new Date(Math.min(...allStarts));
+
+  // ── 表示期間の決定 ──
+  let minDate;
+  if (_timeRange === 'all') {
+    const allStarts = items.map(i=>parseDate(i.startDate));
+    minDate = new Date(Math.min(...allStarts));
+    minDate.setMonth(minDate.getMonth()-1);
+  } else {
+    const yrs = _timeRange === '3y' ? 3 : 5;
+    minDate = new Date(todayDate);
+    minDate.setFullYear(minDate.getFullYear() - yrs);
+  }
+  const allEnds = items.map(i=>i.endDate?parseDate(i.endDate):new Date(todayDate));
   let maxDate = new Date(Math.max(...allEnds));
-  minDate.setMonth(minDate.getMonth()-1);
   maxDate.setMonth(maxDate.getMonth()+2);
   const totalMs = maxDate - minDate;
+
+  // ── 表示対象フィルタ（終了日が期間内 or 使用中） ──
+  const visibleItems = _timeRange === 'all' ? items : items.filter(i => {
+    const end = i.endDate ? parseDate(i.endDate) : new Date(todayDate);
+    return end > minDate;
+  });
+  const hiddenCount = items.length - visibleItems.length;
 
   const yearMarkers = [];
   for (let y=minDate.getFullYear()+1; y<=maxDate.getFullYear(); y++) {
@@ -107,7 +124,7 @@ function renderYears(items) {
   }
   const gridLines = yearMarkers.map(m=>`<div class="tl-grid-line" style="left:${m.pct.toFixed(1)}%"></div>`).join('');
 
-  let sorted = [...items];
+  let sorted = [...visibleItems];
   if (_timeSort==='old') sorted.sort((a,b)=>a.startDate.localeCompare(b.startDate));
   else if (_timeSort==='new') sorted.sort((a,b)=>b.startDate.localeCompare(a.startDate));
   else sorted.sort((a,b)=>{const cc=a.category.localeCompare(b.category,'ja');return cc!==0?cc:a.startDate.localeCompare(b.startDate);});
@@ -119,21 +136,27 @@ function renderYears(items) {
       const color = CAT_COLORS[item.category]||'#3b82f6';
       rowsHtml += `<div class="tl-cat-header"><span class="tl-cat-header-dot" style="background:${color}"></span><span>${CAT_ICONS[item.category]||'📦'} ${item.category}</span></div>`;
     }
-    const start = parseDate(item.startDate);
-    const end   = item.endDate?parseDate(item.endDate):new Date(todayDate);
-    const left  = Math.max(0,(start-minDate)/totalMs*100);
-    const width = Math.min(100-left,(end-start)/totalMs*100);
-    const color = CAT_COLORS[item.category]||'#3b82f6';
-    const days  = calcDays(item.startDate,item.endDate);
-    const usedY = fmtYearsDecimal(days);
-    const alpha = item.endDate?'0.4':'1';
-    const icon  = _timeSort!=='cat'?(CAT_ICONS[item.category]||'📦'):'';
+    const start   = parseDate(item.startDate);
+    const end     = item.endDate?parseDate(item.endDate):new Date(todayDate);
+    const rawLeft = (start - minDate) / totalMs * 100;
+    const beforeWindow = rawLeft < 0;           // 期間より前から使い始めたアイテム
+    const left    = Math.max(0, rawLeft);
+    const rawW    = (end - start) / totalMs * 100;
+    const width   = Math.min(100 - left, beforeWindow ? rawW + rawLeft : rawW);
+    const color   = CAT_COLORS[item.category]||'#3b82f6';
+    const days    = calcDays(item.startDate, item.endDate);
+    const usedY   = fmtYearsDecimal(days);
+    const alpha   = item.endDate ? '0.4' : '1';
+    const icon    = _timeSort!=='cat'?(CAT_ICONS[item.category]||'📦'):'';
+    const capStyle = beforeWindow
+      ? `border-left:2px dashed rgba(255,255,255,0.6);border-radius:0 3px 3px 0;`
+      : '';
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
       <div class="tl-track">
         ${gridLines}
-        <div class="tl-bar" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
+        <div class="tl-bar" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha};${capStyle}">
           ${width>7?`<span class="tl-bar-label">${usedY}年</span>`:''}
         </div>
       </div>
@@ -142,10 +165,20 @@ function renderYears(items) {
 
   const sortBtns = [['cat','カテゴリ順'],['old','古い順'],['new','新しい順']]
     .map(([v,l])=>`<button class="tl-sort-btn${_timeSort===v?' active':''}" data-tsort="${v}">${l}</button>`).join('');
+  const rangeBtns = [['3y','直近3年'],['5y','直近5年'],['all','全期間']]
+    .map(([v,l])=>`<button class="tl-sort-btn tl-range-btn${_timeRange===v?' active':''}" data-trange="${v}">${l}</button>`).join('');
   const axisHtml = yearMarkers.map(m=>`<div class="tl-year-tick" style="left:${m.pct.toFixed(1)}%">${m.year}</div>`).join('');
+  const hiddenNote = hiddenCount > 0
+    ? `<span class="tl-hidden-note">＋${hiddenCount}件は全期間で表示</span>` : '';
 
   return {
-    controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">薄い色＝終了済み・タップで詳細</div>`,
+    controls: `
+      <div class="tl-sort-row">${rangeBtns}</div>
+      <div class="tl-sort-row">${sortBtns}</div>
+      <div class="tl-hint-row">
+        <span class="tl-hint">薄い色＝終了済み・タップで詳細</span>
+        ${hiddenNote}
+      </div>`,
     body: `
       <div class="tl-panel">
         <div class="tl-axis-row">
@@ -265,6 +298,12 @@ export function init(items, navigate, openModal) {
   });
   document.querySelectorAll('[data-tsort]').forEach(btn => {
     btn.addEventListener('click', () => { _timeSort = btn.dataset.tsort; navigate('graph'); });
+  });
+  document.querySelectorAll('[data-trange]').forEach(btn => {
+    btn.addEventListener('click', () => { _timeRange = btn.dataset.trange; navigate('graph'); });
+  });
+  document.querySelector('.tl-hidden-note')?.addEventListener('click', () => {
+    _timeRange = 'all'; navigate('graph');
   });
   document.querySelectorAll('[data-csort]').forEach(btn => {
     btn.addEventListener('click', () => { _costSort = btn.dataset.csort; navigate('graph'); });
