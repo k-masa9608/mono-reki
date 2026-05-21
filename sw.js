@@ -1,4 +1,4 @@
-const CACHE = 'mono-reki-v2';
+const CACHE = 'mono-reki-v3';
 const ASSETS = [
   './',
   './index.html',
