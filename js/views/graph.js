@@ -1,5 +1,5 @@
 import { CATEGORIES, calcDays, fmtYearsDecimal, dailyCost, hasPrice,
-         getRank, RANK_META, fmtCurrency } from '../utils.js';
+         getRank, RANK_META, fmtCurrency, getCatAvg } from '../utils.js';
 
 const CAT_COLORS = {
   'スマホ':    '#3b82f6', 'PC':        '#8b5cf6', 'タブレット':'#a78bfa',
@@ -66,7 +66,7 @@ function buildRankDist(items) {
   const counts = { SS:0, S:0, A:0, B:0, C:0, D:0 };
   for (const item of active) {
     const days  = calcDays(item.startDate);
-    const avg   = (CATEGORIES[item.category] || 5);
+    const avg   = (getCatAvg(item.category));
     const ratio = days / (avg * 365);
     const rank  = getRank(ratio);
     if (rank) counts[rank]++;
@@ -174,7 +174,7 @@ function renderCostBars(items) {
     const costDay = item.actualPrice / days;
     const freq    = item.usageFreq && FREQ_PER_YEAR[item.usageFreq];
     const costUse = freq ? item.actualPrice / (freq * (days / 365)) : null;
-    const ratio   = days / ((CATEGORIES[item.category]||5) * 365);
+    const ratio   = days / ((getCatAvg(item.category)) * 365);
     const rank    = getRank(ratio);
     const meta    = rank ? RANK_META[rank] : null;
     return { item, costDay, costUse, days, rank, meta };
@@ -223,7 +223,7 @@ function renderCostBars(items) {
 
   return {
     controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">¥/回は使用頻度登録済みのみ有効</div>`,
-    body: `<div class="cb-list">${rows}</div>`,
+    body: `<div class="cb-panel"><div class="cb-scroll-body"><div class="cb-list">${rows}</div></div></div>`,
   };
 }
 

@@ -1,5 +1,5 @@
 import { CATEGORIES, calcDays, dailyCost, hasPrice,
-         fmtYearsDecimal, fmtCurrency, fmtDate, getRank, RANK_META, getMilestone } from '../utils.js';
+         fmtYearsDecimal, fmtCurrency, fmtDate, getRank, RANK_META, getMilestone, getCatAvg } from '../utils.js';
 
 function endedCard(item, maxDays) {
   const days    = calcDays(item.startDate, item.endDate);
@@ -48,7 +48,7 @@ const WAVE_THRESHOLD_DAYS = 15 * 365;
 
 function cardColor(item, days) {
   if (item.endDate) return '#94a3b8';
-  const avg  = CATEGORIES[item.category] || 5;
+  const avg  = getCatAvg(item.category);
   const over = days >= avg * 365;
   if (!hasPrice(item)) return '#3b82f6';
   if (over) return '#22c55e';
@@ -85,7 +85,7 @@ function itemCard(item, maxDays) {
   const cost   = dailyCost(item.actualPrice, days);
   const usedY  = fmtYearsDecimal(days);
   const color  = cardColor(item, days);
-  const avg    = CATEGORIES[item.category] || 5;
+  const avg    = getCatAvg(item.category);
   const priced = hasPrice(item);
   const ratio  = days / (avg * 365);
   const rank   = getRank(ratio);
@@ -137,7 +137,7 @@ function buildOverdueStrip(items) {
     .filter(i => !i.endDate)
     .map(i => {
       const days = calcDays(i.startDate);
-      const avg = CATEGORIES[i.category] || 5;
+      const avg = getCatAvg(i.category);
       const overYrs = parseFloat((days / 365 - avg).toFixed(1));
       return overYrs > 0 ? { item: i, avg, overYrs } : null;
     })
@@ -213,7 +213,7 @@ export function render(items) {
     ? active.reduce((s, i) => s + calcDays(i.startDate), 0) / active.length / 365
     : 0;
   const catAvgYrs = active.length
-    ? active.reduce((s, i) => s + (CATEGORIES[i.category] || 5), 0) / active.length
+    ? active.reduce((s, i) => s + (getCatAvg(i.category)), 0) / active.length
     : 5;
   const diffYrs = avgYrs - catAvgYrs;
 

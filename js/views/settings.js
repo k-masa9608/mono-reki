@@ -1,5 +1,6 @@
 import { DB } from '../db.js';
-import { today, CATEGORIES, calcDays, dailyCost, hasPrice, fmtCurrency } from '../utils.js';
+import { today, CATEGORIES, calcDays, dailyCost, hasPrice, fmtCurrency,
+         getCatAvg, setCatAvg, resetCatAvgs } from '../utils.js';
 
 function buildStats(items) {
   if (!items.length) return '';
@@ -74,6 +75,14 @@ export function render(items = []) {
         <div class="settings-divider"></div>
         <div class="settings-row">
           <div class="settings-row-body">
+            <div class="settings-row-label">CSVで書き出す</div>
+            <div class="settings-row-sub">Excelなどで開けるCSV形式</div>
+          </div>
+          <button class="settings-btn" id="btn-export-csv">書き出す</button>
+        </div>
+        <div class="settings-divider"></div>
+        <div class="settings-row">
+          <div class="settings-row-body">
             <div class="settings-row-label">JSONから読み込む</div>
             <div class="settings-row-sub">同じIDは上書き、新規IDは追加します</div>
           </div>
@@ -81,6 +90,29 @@ export function render(items = []) {
         </div>
         <input type="file" id="import-file" accept=".json" style="display:none">
       </div>
+    </div>
+
+    <div class="section" style="margin-top:10px">
+      <div class="section-title">📅 カテゴリ別・平均使用年数</div>
+      <div class="settings-group-sub">カテゴリの「平均」年数を自分の感覚に合わせて調整できます。</div>
+      <div class="settings-group" id="cat-avg-group">
+        ${Object.entries(CATEGORIES).map(([cat, def]) => {
+          const cur = getCatAvg(cat);
+          return `
+          <div class="settings-row cat-avg-row" data-cat="${cat}">
+            <div class="settings-row-body">
+              <div class="settings-row-label">${cat}</div>
+              <div class="settings-row-sub">デフォルト: ${def}年</div>
+            </div>
+            <div class="cat-avg-stepper">
+              <button type="button" class="cat-avg-btn cat-avg-minus" data-cat="${cat}">−</button>
+              <span class="cat-avg-val" id="cat-avg-val-${cat.replace(/[・]/g,'_')}">${cur}</span>
+              <button type="button" class="cat-avg-btn cat-avg-plus" data-cat="${cat}">＋</button>
+            </div>
+          </div>`;
+        }).join('<div class="settings-divider"></div>')}
+      </div>
+      <button class="settings-btn" id="btn-reset-cat-avgs" style="margin-top:8px;margin-left:auto;display:block">デフォルトに戻す</button>
     </div>
 
     <div class="section" style="margin-top:10px">
@@ -137,6 +169,30 @@ export function init(navigate) {
     URL.revokeObjectURL(url);
   });
 
+  document.getElementById('btn-export-csv')?.addEventListener('click', async () => {
+    const items = await DB.getAll();
+    const headers = ['id','name','category','startDate','purchaseDate','endDate',
+                     'actualPrice','listPrice','purchasePlace','usageFreq',
+                     'disposalReason','memo','prevItemId','createdAt','updatedAt'];
+    const esc = v => {
+      if (v == null) return '';
+      const s = String(v);
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const rows = [headers.join(','),
+      ...items.map(i => headers.map(h => esc(i[h])).join(','))
+    ];
+    const bom  = '﻿';
+    const blob = new Blob([bom + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'), {
+      href: url, download: `nannenshita_${today()}.csv`,
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
   document.getElementById('btn-import-trigger')?.addEventListener('click', () => {
     document.getElementById('import-file')?.click();
   });
@@ -154,6 +210,31 @@ export function init(navigate) {
       showResult(`❌ 読み込み失敗: ${err.message}`, true);
     }
     e.target.value = '';
+  });
+
+  // category avg steppers
+  document.querySelectorAll('.cat-avg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.cat;
+      const cur = getCatAvg(cat);
+      const next = btn.classList.contains('cat-avg-plus')
+        ? Math.min(cur + 0.5, 30)
+        : Math.max(cur - 0.5, 0.5);
+      setCatAvg(cat, next);
+      const key = cat.replace(/[・]/g, '_');
+      const el = document.getElementById(`cat-avg-val-${key}`);
+      if (el) el.textContent = next;
+    });
+  });
+
+  document.getElementById('btn-reset-cat-avgs')?.addEventListener('click', () => {
+    if (!confirm('カテゴリ平均年数をデフォルトに戻しますか？')) return;
+    resetCatAvgs();
+    Object.entries(CATEGORIES).forEach(([cat, def]) => {
+      const key = cat.replace(/[・]/g, '_');
+      const el = document.getElementById(`cat-avg-val-${key}`);
+      if (el) el.textContent = def;
+    });
   });
 
   document.getElementById('btn-clear')?.addEventListener('click', async () => {

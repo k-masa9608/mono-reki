@@ -43,7 +43,17 @@ function buildPrevOpts(endedItems, category, selectedId) {
   </div>`;
 }
 
-export function render(item = null, endedItems = []) {
+const DEFAULT_PLACES = ['Apple Store', 'Amazon', 'メルカリ', 'Yahoo!ショッピング', '楽天市場', 'ビックカメラ', 'ヨドバシカメラ', 'PayPayフリマ'];
+
+function buildPlaceDatalist(allItems) {
+  const places = new Set(DEFAULT_PLACES);
+  for (const i of allItems) {
+    if (i.purchasePlace) places.add(i.purchasePlace);
+  }
+  return `<datalist id="place-list">${[...places].map(p => `<option value="${p}">`).join('')}</datalist>`;
+}
+
+export function render(item = null, endedItems = [], allItems = []) {
   _photoData = item?.photo || null;
 
   const d = item || {
@@ -169,8 +179,10 @@ export function render(item = null, endedItems = []) {
         </div>
         <div class="form-group" style="margin-top:8px">
           <label class="form-label" for="f-place">購入場所</label>
+          ${buildPlaceDatalist(allItems)}
           <input class="form-input" id="f-place" type="text"
-                 value="${d.purchasePlace||''}" placeholder="例：Apple Store、メルカリ" autocomplete="off">
+                 value="${d.purchasePlace||''}" placeholder="例：Apple Store、メルカリ"
+                 list="place-list" autocomplete="off">
         </div>
       </div>
     </div>

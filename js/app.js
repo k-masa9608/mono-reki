@@ -254,7 +254,7 @@ async function renderView(view, params = {}) {
       }
       const addTitle = params.fromWishId ? '購入アイテムを登録' : prefill ? '複製して追加' : 'アイテムを追加';
       appHeader.innerHTML = headerBack(addTitle);
-      main.innerHTML = FormView.render(prefill, endedItems);
+      main.innerHTML = FormView.render(prefill, endedItems, items);
       FormView.init(null, navigate, async item => {
         await DB.put(item);
         if (params.fromWishId) await DB.delete(params.fromWishId);
@@ -267,7 +267,7 @@ async function renderView(view, params = {}) {
       const item = await DB.get(params.id);
       const endedItems = items.filter(i => i.endDate && i.id !== item.id);
       appHeader.innerHTML = headerBack('編集');
-      main.innerHTML = FormView.render(item, endedItems);
+      main.innerHTML = FormView.render(item, endedItems, items);
       FormView.init(item, navigate, async updated => { await DB.put(updated); showToast('更新しました ✓'); }, endedItems);
       bindHeaderBack('edit', params);
       break;

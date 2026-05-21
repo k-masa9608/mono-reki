@@ -147,6 +147,26 @@ export function getMilestone(days) {
   return null;
 }
 
+// カテゴリ平均年数（ユーザーカスタマイズ優先）
+export function getCatAvg(category) {
+  try {
+    const custom = JSON.parse(localStorage.getItem('mono_cat_avgs') || '{}');
+    return custom[category] ?? CATEGORIES[category] ?? 5;
+  } catch { return CATEGORIES[category] ?? 5; }
+}
+
+export function setCatAvg(category, years) {
+  try {
+    const custom = JSON.parse(localStorage.getItem('mono_cat_avgs') || '{}');
+    custom[category] = years;
+    localStorage.setItem('mono_cat_avgs', JSON.stringify(custom));
+  } catch {}
+}
+
+export function resetCatAvgs() {
+  localStorage.removeItem('mono_cat_avgs');
+}
+
 export function genId() { return crypto.randomUUID(); }
 
 export function today() {

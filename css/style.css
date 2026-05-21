@@ -807,6 +807,25 @@ body {
 .settings-btn:active { background: var(--slate); }
 .settings-btn.danger { border-color: #ef4444; color: #ef4444; }
 .settings-btn.danger:active { background: #fef2f2; }
+.settings-group-sub {
+  font-size: 11px; color: var(--text-lt); margin: 4px 2px 6px; line-height: 1.5;
+}
+/* category avg stepper */
+.cat-avg-stepper {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.cat-avg-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--border-m); background: var(--bg);
+  font-size: 16px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-m); transition: background .1s;
+}
+.cat-avg-btn:active { background: var(--slate); }
+.cat-avg-val {
+  min-width: 28px; text-align: center;
+  font-size: 13px; font-weight: 700; color: var(--blue);
+}
 /* Stats (settings) */
 .stat-summary {
   display: grid; grid-template-columns: repeat(3, 1fr);
@@ -1530,4 +1549,17 @@ body {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* ── コスト/回数パネル（独立スクロール） ── */
+.cb-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 62dvh;
+}
+.cb-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0 8px;
 }

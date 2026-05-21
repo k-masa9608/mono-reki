@@ -1,5 +1,5 @@
 import { CATEGORIES, calcDays, dailyCost, hasPrice,
-         fmtYears, fmtYearsDecimal, fmtCurrency, fmtDate, getMilestone } from '../utils.js';
+         fmtYears, fmtYearsDecimal, fmtCurrency, fmtDate, getMilestone, getCatAvg } from '../utils.js';
 
 // ── 視覚タイムライン ──
 function buildTimeline(item, days, avg) {
@@ -119,7 +119,7 @@ function chainSection(item, allItems) {
 export function renderModal(item, allItems = []) {
   const days   = calcDays(item.startDate, item.endDate);
   const cost   = dailyCost(item.actualPrice, days);
-  const avg    = CATEGORIES[item.category] || 5;
+  const avg    = getCatAvg(item.category);
   const over   = days >= avg * 365;
   const ended  = !!item.endDate;
   const priced = hasPrice(item);
