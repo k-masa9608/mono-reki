@@ -1,5 +1,5 @@
 import { DB } from '../db.js';
-import { today, CATEGORIES, DEMO_ITEMS, calcDays, dailyCost, hasPrice, fmtCurrency,
+import { today, CATEGORIES, CATEGORY_GROUPS, DEMO_ITEMS, calcDays, dailyCost, hasPrice, fmtCurrency,
          getCatAvg, setCatAvg, resetCatAvgs } from '../utils.js';
 
 function buildStats(items) {
@@ -101,26 +101,35 @@ export function render(items = []) {
     </div>
 
     <div class="section" style="margin-top:10px">
-      <div class="section-title">📅 カテゴリ別・平均使用年数</div>
-      <div class="settings-group-sub">カテゴリの「平均」年数を自分の感覚に合わせて調整できます。</div>
-      <div class="settings-group" id="cat-avg-group">
-        ${Object.entries(CATEGORIES).map(([cat, def]) => {
-          const cur = getCatAvg(cat);
-          return `
-          <div class="settings-row cat-avg-row" data-cat="${cat}">
-            <div class="settings-row-body">
-              <div class="settings-row-label">${cat}</div>
-              <div class="settings-row-sub">デフォルト: ${def}年</div>
-            </div>
-            <div class="cat-avg-stepper">
-              <button type="button" class="cat-avg-btn cat-avg-minus" data-cat="${cat}">−</button>
-              <span class="cat-avg-val" id="cat-avg-val-${cat.replace(/[・]/g,'_')}">${cur}</span>
-              <button type="button" class="cat-avg-btn cat-avg-plus" data-cat="${cat}">＋</button>
-            </div>
-          </div>`;
-        }).join('<div class="settings-divider"></div>')}
+      <button class="st-accordion-hd" id="cat-avg-toggle" aria-expanded="false">
+        <span>📅 カテゴリ別・平均使用年数</span>
+        <svg class="st-accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="st-accordion-body" id="cat-avg-body">
+        <div class="settings-group-sub">カテゴリの「平均」年数を自分の感覚に合わせて調整できます。</div>
+        ${CATEGORY_GROUPS.map(g => `
+          <div class="st-cat-group-hd">${g.label}</div>
+          <div class="settings-group" style="margin-bottom:8px">
+            ${g.cats.map((cat, idx) => {
+              const def = CATEGORIES[cat];
+              const cur = getCatAvg(cat);
+              return `
+              ${idx > 0 ? '<div class="settings-divider"></div>' : ''}
+              <div class="settings-row cat-avg-row" data-cat="${cat}">
+                <div class="settings-row-body">
+                  <div class="settings-row-label">${cat}</div>
+                  <div class="settings-row-sub">デフォルト: ${def}年</div>
+                </div>
+                <div class="cat-avg-stepper">
+                  <button type="button" class="cat-avg-btn cat-avg-minus" data-cat="${cat}">−</button>
+                  <span class="cat-avg-val" id="cat-avg-val-${cat.replace(/[・]/g,'_')}">${cur}</span>
+                  <button type="button" class="cat-avg-btn cat-avg-plus" data-cat="${cat}">＋</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>`).join('')}
+        <button class="settings-btn" id="btn-reset-cat-avgs" style="margin-top:4px;margin-left:auto;display:block">デフォルトに戻す</button>
       </div>
-      <button class="settings-btn" id="btn-reset-cat-avgs" style="margin-top:8px;margin-left:auto;display:block">デフォルトに戻す</button>
     </div>
 
     <div class="section" style="margin-top:10px">
@@ -156,6 +165,18 @@ export function render(items = []) {
 }
 
 export function init(navigate) {
+  // カテゴリ平均アコーディオン
+  const catToggle = document.getElementById('cat-avg-toggle');
+  const catBody   = document.getElementById('cat-avg-body');
+  const _catOpen  = localStorage.getItem('mono_catavg_open') === '1';
+  if (_catOpen) { catToggle?.setAttribute('aria-expanded','true'); catBody?.classList.add('open'); }
+  catToggle?.addEventListener('click', () => {
+    const next = catToggle.getAttribute('aria-expanded') !== 'true';
+    catToggle.setAttribute('aria-expanded', String(next));
+    catBody?.classList.toggle('open', next);
+    localStorage.setItem('mono_catavg_open', next ? '1' : '0');
+  });
+
   document.getElementById('btn-theme')?.addEventListener('click', () => {
     const isDark = document.documentElement.dataset.theme === 'dark';
     const next = isDark ? 'light' : 'dark';
