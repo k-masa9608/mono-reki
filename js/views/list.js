@@ -6,8 +6,8 @@ function calcTotalSavings(items) {
   for (const i of items) {
     if (!i.actualPrice || i.endDate) continue;
     const days = calcDays(i.startDate);
-    const reps = Math.floor(days / (getCatAvg(i.category) * 365));
-    if (reps >= 1) { total += reps * i.actualPrice; count++; }
+    const avgDays = getCatAvg(i.category) * 365;
+    if (days > avgDays) { total += Math.round(i.actualPrice * (days - avgDays) / avgDays); count++; }
   }
   return { total, count };
 }

@@ -17,8 +17,10 @@ export async function generateShareCard(item) {
   const yrs     = (days / 365).toFixed(1);
   const cost    = item.actualPrice ? Math.round(item.actualPrice / days) : null;
   const over    = days >= avg * 365;
-  const reps    = (item.actualPrice && over) ? Math.floor(days / (avg * 365)) : 0;
-  const savings = reps >= 1 ? reps * item.actualPrice : 0;
+  const avgDays = avg * 365;
+  const savings = (item.actualPrice && over)
+    ? Math.round(item.actualPrice * (days - avgDays) / avgDays)
+    : 0;
 
   await document.fonts.ready;
 

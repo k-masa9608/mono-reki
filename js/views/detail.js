@@ -130,14 +130,16 @@ export function renderModal(item, allItems = []) {
 
   const savingsLine = (() => {
     if (!priced || !over) return '';
-    const reps = Math.floor(days / (avg * 365));
-    if (reps < 1) return '';
+    const avgDays = avg * 365;
+    const saved = Math.round(item.actualPrice * (days - avgDays) / avgDays);
+    if (saved <= 0) return '';
+    const overYrs = ((days - avgDays) / 365).toFixed(1);
     return `
     <div class="mc-savings-card">
       <div class="mc-savings-emoji">🎉</div>
       <div class="mc-savings-body">
-        <div class="mc-savings-main">${fmtCurrency(reps * item.actualPrice)} 節約中！</div>
-        <div class="mc-savings-sub">平均${avg}年で買い替えていたら今頃${reps + 1}代目</div>
+        <div class="mc-savings-main">${fmtCurrency(saved)} 節約中！</div>
+        <div class="mc-savings-sub">平均より${overYrs}年長く使用中</div>
       </div>
     </div>`;
   })();
