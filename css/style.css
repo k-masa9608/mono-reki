@@ -1119,6 +1119,7 @@ body {
 .tl-row-icon { font-size: 10px; flex-shrink: 0; }
 .tl-track {
   flex: 1; position: relative; height: 18px;
+  overflow: hidden; /* バーやラベルが名前列にはみ出るのを防ぐ */
 }
 .tl-grid-line {
   position: absolute; top: 0; bottom: 0; width: 1px;
@@ -1129,10 +1130,21 @@ body {
   border-radius: 3px; display: flex; align-items: center;
   overflow: hidden; min-width: 3px;
 }
+/* 期間外から継続しているバー：左端を角丸なし＋フェード */
+.tl-bar--before {
+  border-radius: 0 3px 3px 0;
+}
+.tl-bar--before::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 14px;
+  background: linear-gradient(to right, rgba(255,255,255,0.45), transparent);
+  pointer-events: none; z-index: 1;
+}
 .tl-bar-label {
   font-size: 8.5px; font-weight: 700; color: #fff;
   padding: 0 5px; white-space: nowrap;
   text-shadow: 0 1px 2px rgba(0,0,0,.25);
+  position: relative; z-index: 2;
 }
 
 /* ── Graph view tabs ── */

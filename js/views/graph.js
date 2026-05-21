@@ -148,15 +148,13 @@ function renderYears(items) {
     const usedY   = fmtYearsDecimal(days);
     const alpha   = item.endDate ? '0.4' : '1';
     const icon    = _timeSort!=='cat'?(CAT_ICONS[item.category]||'📦'):'';
-    const capStyle = beforeWindow
-      ? `border-left:2px dashed rgba(255,255,255,0.6);border-radius:0 3px 3px 0;`
-      : '';
+    const barClass = `tl-bar${beforeWindow ? ' tl-bar--before' : ''}`;
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
       <div class="tl-track">
         ${gridLines}
-        <div class="tl-bar" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha};${capStyle}">
+        <div class="${barClass}" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
           ${width>7?`<span class="tl-bar-label">${usedY}年</span>`:''}
         </div>
       </div>
