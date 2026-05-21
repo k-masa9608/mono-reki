@@ -157,18 +157,17 @@ function renderYears(items) {
     const ratio   = days / (avg * 365);
     const rank    = getRank(ratio);
     const meta    = rank ? RANK_META[rank] : null;
-    const rankInline = meta
-      ? `<span class="tl-bar-rank-pill" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
-      : '';
+    const rankCol = meta
+      ? `<div class="tl-rank-col"><span class="tl-rank-col-badge" style="background:${meta.bg};color:${meta.text}">${rank}</span></div>`
+      : `<div class="tl-rank-col"></div>`;
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
+      ${rankCol}
       <div class="tl-track">
         ${gridLines}
         <div class="${barClass}" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
-          ${width>6
-            ? `<span class="tl-bar-label">${usedY}年</span>${rankInline}`
-            : width>2 ? rankInline : ''}
+          ${width>7?`<span class="tl-bar-label">${usedY}年</span>`:''}
         </div>
       </div>
     </div>`;
@@ -190,6 +189,7 @@ function renderYears(items) {
     : `<div class="tl-panel">
         <div class="tl-axis-row">
           <div class="tl-axis-spacer"></div>
+          <div class="tl-axis-spacer tl-axis-rank-spacer"></div>
           <div class="tl-axis-marks">${axisHtml}</div>
         </div>
         <div class="tl-scroll-body">

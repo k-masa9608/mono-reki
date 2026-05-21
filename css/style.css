@@ -1187,14 +1187,19 @@ body {
   text-shadow: 0 1px 2px rgba(0,0,0,.25);
   position: relative; z-index: 2;
 }
-.tl-bar-rank-pill {
-  font-size: 7.5px; font-weight: 800;
-  padding: 1px 4px; border-radius: 3px;
-  white-space: nowrap; flex-shrink: 0;
-  position: relative; z-index: 2;
-  box-shadow: 0 1px 3px rgba(0,0,0,.25);
-  margin-left: 3px;
+/* 名前列とトラックの間のランク専用列 */
+.tl-rank-col {
+  width: 24px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
+.tl-rank-col-badge {
+  font-size: 8px; font-weight: 800;
+  padding: 1px 4px; border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18);
+}
+/* 年軸のランク列分オフセット */
+.tl-axis-rank-spacer { width: 24px; }
 
 /* ── Graph view tabs ── */
 .g-view-tabs {
