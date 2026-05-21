@@ -1,5 +1,6 @@
 import { CATEGORIES, calcDays, dailyCost, hasPrice,
          fmtYears, fmtYearsDecimal, fmtCurrency, fmtDate, getMilestone, getCatAvg } from '../utils.js';
+import { showSharePreview } from '../share.js';
 
 // ── 視覚タイムライン ──
 function buildTimeline(item, days, avg) {
@@ -127,11 +128,19 @@ export function renderModal(item, allItems = []) {
 
   const yearColor = ended ? '#94a3b8' : over ? '#22c55e' : '#3b82f6';
 
-  const savingsLine = (priced && over)
-    ? (() => { const reps = Math.floor(days / (avg * 365)); return reps >= 1
-        ? `<div class="mc-savings">🎉 平均${avg}年買い替えなら今頃<strong>${reps+1}代目</strong>・<strong>${fmtCurrency(reps * item.actualPrice)}</strong>節約</div>`
-        : ''; })()
-    : '';
+  const savingsLine = (() => {
+    if (!priced || !over) return '';
+    const reps = Math.floor(days / (avg * 365));
+    if (reps < 1) return '';
+    return `
+    <div class="mc-savings-card">
+      <div class="mc-savings-emoji">🎉</div>
+      <div class="mc-savings-body">
+        <div class="mc-savings-main">${fmtCurrency(reps * item.actualPrice)} 節約中！</div>
+        <div class="mc-savings-sub">平均${avg}年で買い替えていたら今頃${reps + 1}代目</div>
+      </div>
+    </div>`;
+  })();
 
   const infoRows = [
     item.purchaseDate ? ['購入日', fmtDate(item.purchaseDate)] : null,
@@ -182,18 +191,7 @@ export function initModal(item, navigate, closeModal, deleteItem, openModal = nu
     navigate('edit', { id: item.id });
   });
   document.getElementById('modal-share-btn')?.addEventListener('click', async () => {
-    const days = calcDays(item.startDate, item.endDate);
-    const yrs  = fmtYearsDecimal(days);
-    const text = `「${item.name}」を${yrs}年使っています！ #モノ歴`;
-    if (navigator.share) {
-      try { await navigator.share({ title: 'モノ歴', text }); } catch {}
-    } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        const btn = document.getElementById('modal-share-btn');
-        if (btn) { btn.textContent = '✓ コピーしました'; setTimeout(() => { btn.textContent = '🔗 シェア'; }, 2000); }
-      } catch {}
-    }
+    await showSharePreview(item);
   });
   // チェーンノードをタップで別アイテムのモーダルを開く
   if (openModal) {

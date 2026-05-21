@@ -164,6 +164,78 @@ body {
 .sc-sep {
   width: 1px; height: 28px; background: rgba(255,255,255,.25); flex-shrink: 0;
 }
+.sc-savings { cursor: pointer; }
+.sc-savings-val { color: #bbf7d0 !important; }
+
+/* ── 節約バナー ── */
+.savings-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 8px 12px 0;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  border: 1px solid rgba(74,222,128,.25);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(16,185,129,.15);
+  animation: savings-in .4s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes savings-in {
+  from { opacity:0; transform:translateY(-8px) scale(.97); }
+  to   { opacity:1; transform:none; }
+}
+.savings-banner-left { flex: 1; }
+.savings-banner-main {
+  font-size: 16px; font-weight: 800; color: #4ade80; letter-spacing: -0.3px;
+}
+.savings-banner-sub {
+  font-size: 11px; color: rgba(187,247,208,.7); margin-top: 2px; font-weight: 500;
+}
+.savings-banner-right {
+  font-size: 28px; margin-left: 12px; flex-shrink: 0;
+}
+
+/* ── シェアプレビュー オーバーレイ ── */
+.spr-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0);
+  display: flex; align-items: flex-end; justify-content: center;
+  transition: background .25s;
+}
+.spr-overlay.open { background: rgba(0,0,0,.65); }
+.spr-sheet {
+  width: 100%; max-width: 480px;
+  background: var(--bg);
+  border-radius: 22px 22px 0 0;
+  padding: 20px 20px 40px;
+  transform: translateY(100%);
+  transition: transform .28s cubic-bezier(.32,1,.23,1);
+}
+.spr-overlay.open .spr-sheet { transform: none; }
+.spr-img-wrap {
+  background: #0d1117; border-radius: 12px; overflow: hidden;
+  aspect-ratio: 1; width: 100%;
+}
+.spr-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.spr-btns {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-top: 16px;
+}
+.spr-btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 7px; padding: 13px 0;
+  border-radius: 12px; border: none; cursor: pointer;
+  font-size: 15px; font-weight: 700; font-family: var(--font-ui);
+  transition: opacity .15s;
+}
+.spr-btn:active { opacity: .75; }
+.spr-btn-share { background: var(--blue); color: #fff; }
+.spr-btn-save  { background: var(--slate); color: var(--text); border: 1.5px solid var(--border-m); }
+.spr-close {
+  display: block; width: 100%; margin-top: 10px;
+  padding: 13px; border-radius: 12px;
+  background: transparent; border: none; cursor: pointer;
+  font-size: 15px; font-weight: 600; color: var(--text-m);
+  font-family: var(--font-ui);
+}
 
 /* ── Search ── */
 .search-wrap { padding: 10px 12px 4px; }
@@ -484,12 +556,27 @@ body {
 .mc-row:last-child { border-bottom: none; }
 .mc-key { font-size: 13px; color: var(--text-lt); flex-shrink: 0; }
 .mc-val { font-size: 14px; font-weight: 700; color: var(--text); text-align: right; }
+/* 旧スタイル（互換） */
 .mc-savings {
   font-size: 12px; color: #15803d; padding: 8px 12px;
   background: #f0fdf4; border: 1px solid #bbf7d0;
   border-radius: 8px; margin: 4px 0;
 }
 .mc-savings strong { color: #166534; }
+/* 節約カード（新デザイン） */
+.mc-savings-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; margin: 8px 0;
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+  border-radius: 12px; border: 1px solid rgba(74,222,128,.25);
+}
+.mc-savings-emoji { font-size: 24px; flex-shrink: 0; }
+.mc-savings-main {
+  font-size: 16px; font-weight: 800; color: #4ade80; letter-spacing: -0.3px;
+}
+.mc-savings-sub {
+  font-size: 11px; color: rgba(187,247,208,.75); margin-top: 2px;
+}
 /* mc-delete-btn → mc-actions 内で定義 */
 .modal-reg-btn {
   width: 100%; margin-top: 10px; padding: 9px;

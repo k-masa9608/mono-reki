@@ -1,6 +1,17 @@
 import { CATEGORIES, calcDays, dailyCost, hasPrice,
          fmtYearsDecimal, fmtCurrency, fmtDate, getRank, RANK_META, getMilestone, getCatAvg } from '../utils.js';
 
+function calcTotalSavings(items) {
+  let total = 0, count = 0;
+  for (const i of items) {
+    if (!i.actualPrice || i.endDate) continue;
+    const days = calcDays(i.startDate);
+    const reps = Math.floor(days / (getCatAvg(i.category) * 365));
+    if (reps >= 1) { total += reps * i.actualPrice; count++; }
+  }
+  return { total, count };
+}
+
 function endedCard(item, maxDays) {
   const days    = calcDays(item.startDate, item.endDate);
   const usedY   = fmtYearsDecimal(days);
@@ -216,6 +227,7 @@ export function render(items) {
     ? active.reduce((s, i) => s + (getCatAvg(i.category)), 0) / active.length
     : 5;
   const diffYrs = avgYrs - catAvgYrs;
+  const { total: totalSavings, count: savingsCount } = calcTotalSavings(active);
 
   const base = _tab === 'active' ? active : ended;
   const cats = ['all', ...Array.from(new Set(base.map(i => i.category)))];
@@ -268,7 +280,22 @@ export function render(items) {
         <div class="sc-val" style="color:${diffYrs>=0?'#16a34a':'#ef4444'}">${avgYrs.toFixed(1)}<small>年</small></div>
         <div class="sc-lbl">平均使用年数</div>
       </div>
+      ${totalSavings > 0 ? `
+      <div class="sc-sep"></div>
+      <div class="sc-stat sc-savings" id="sc-savings-tap">
+        <div class="sc-val sc-savings-val">¥${totalSavings >= 10000 ? Math.round(totalSavings/10000)+'万' : totalSavings.toLocaleString()}</div>
+        <div class="sc-lbl">節約中 🎉</div>
+      </div>` : ''}
     </div>
+
+    ${totalSavings > 0 ? `
+    <div class="savings-banner" id="savings-banner">
+      <div class="savings-banner-left">
+        <div class="savings-banner-main">¥${totalSavings >= 10000 ? (totalSavings/10000).toFixed(1)+'万' : totalSavings.toLocaleString()} 節約中！</div>
+        <div class="savings-banner-sub">${savingsCount}個のアイテムが平均より長く現役</div>
+      </div>
+      <div class="savings-banner-right">🎉</div>
+    </div>` : ''}
 
     ${buildMilestoneStrip(active)}
     ${buildOverdueStrip(active)}
