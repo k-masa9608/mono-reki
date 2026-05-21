@@ -153,13 +153,20 @@ function renderYears(items) {
     const alpha   = item.endDate ? '0.4' : '1';
     const icon    = _timeSort!=='cat'?(CAT_ICONS[item.category]||'📦'):'';
     const barClass = `tl-bar${beforeWindow ? ' tl-bar--before' : ''}`;
+    const avg     = getCatAvg(item.category);
+    const ratio   = days / (avg * 365);
+    const rank    = getRank(ratio);
+    const rankTag = rank && width > 3
+      ? `<span class="tl-bar-rank">${rank}</span>`
+      : '';
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
       <div class="tl-track">
         ${gridLines}
         <div class="${barClass}" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
-          ${width>7?`<span class="tl-bar-label">${usedY}年</span>`:''}
+          ${width>9?`<span class="tl-bar-label">${usedY}年</span>`:''}
+          ${rankTag}
         </div>
       </div>
     </div>`;
