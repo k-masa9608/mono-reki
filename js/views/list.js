@@ -143,53 +143,47 @@ const CAT_ICONS_MS = {
 };
 const MILESTONE_YEARS = [1, 3, 5, 7, 10];
 
-function buildOverdueStrip(items) {
-  const overdue = items
-    .filter(i => !i.endDate)
-    .map(i => {
-      const days = calcDays(i.startDate);
-      const avg = getCatAvg(i.category);
-      const overYrs = parseFloat((days / 365 - avg).toFixed(1));
-      return overYrs > 0 ? { item: i, avg, overYrs } : null;
-    })
-    .filter(Boolean)
-    .sort((a, b) => b.overYrs - a.overYrs);
-
-  if (!overdue.length) return '';
-
-  const chips = overdue.map(({ item, avg, overYrs }) =>
-    `<span class="ms-chip od-chip">${CAT_ICONS_MS[item.category]||'📦'} <b>${item.name}</b> 平均${avg}年を${overYrs}年超過</span>`
-  ).join('');
-
-  return `<div class="ms-bar od-bar">
-    <span class="ms-bar-label">⏰</span>
-    <div class="ms-bar-scroll">${chips}</div>
-  </div>`;
-}
-
-function buildMilestoneStrip(items) {
-  const upcoming = [];
+// マイルストーン＋超過を1本のストリップに統合
+function buildNoticeStrip(items) {
   const todayMs = new Date(new Date().toDateString()).getTime();
+  const chips = [];
+
   for (const item of items.filter(i => !i.endDate)) {
     for (const mYears of MILESTONE_YEARS) {
       const ann = new Date(item.startDate + 'T00:00:00');
       ann.setFullYear(ann.getFullYear() + mYears);
       const rem = Math.round((ann.getTime() - todayMs) / 86400000);
       if (rem > 0 && rem <= 30) {
-        upcoming.push({ item, rem, years: mYears });
+        chips.push({ type: 'ms', item, rem, years: mYears });
         break;
       }
     }
   }
-  if (!upcoming.length) return '';
-  upcoming.sort((a, b) => a.rem - b.rem);
-  const chips = upcoming.map(({ item, rem, years }) =>
-    `<span class="ms-chip">${CAT_ICONS_MS[item.category]||'📦'} <b>${item.name}</b> ${years}年まで${rem === 1 ? '明日！' : `あと${rem}日`}</span>`
-  ).join('');
-  return `<div class="ms-bar">
-    <span class="ms-bar-label">🎯</span>
-    <div class="ms-bar-scroll">${chips}</div>
-  </div>`;
+
+  for (const item of items.filter(i => !i.endDate)) {
+    const days   = calcDays(item.startDate);
+    const avg    = getCatAvg(item.category);
+    const overYrs = parseFloat((days / 365 - avg).toFixed(1));
+    if (overYrs > 0) chips.push({ type: 'od', item, overYrs });
+  }
+
+  if (!chips.length) return '';
+
+  chips.sort((a, b) => {
+    if (a.type === 'ms' && b.type !== 'ms') return -1;
+    if (a.type !== 'ms' && b.type === 'ms') return 1;
+    if (a.type === 'ms') return a.rem - b.rem;
+    return b.overYrs - a.overYrs;
+  });
+
+  const html = chips.map(c => {
+    const icon = CAT_ICONS_MS[c.item.category] || '📦';
+    return c.type === 'ms'
+      ? `<span class="ns-chip ns-ms">🎯 ${icon} <b>${c.item.name}</b> ${c.years}年まで${c.rem === 1 ? '明日！' : `あと${c.rem}日`}</span>`
+      : `<span class="ns-chip ns-od">⏰ ${icon} <b>${c.item.name}</b> +${c.overYrs}年</span>`;
+  }).join('');
+
+  return `<div class="ns-bar"><div class="ns-scroll">${html}</div></div>`;
 }
 
 let _tab             = 'active';
@@ -261,8 +255,8 @@ export function render(items) {
   const hasDemo = items.some(i => DEMO_IDS.has(i.id));
   const demoBanner = hasDemo ? `
     <div class="demo-banner">
-      📦 デモデータ表示中
-      <button class="demo-reset-btn" id="btn-reset-demo">× リセット</button>
+      <span>📦 デモデータ表示中</span>
+      <button class="demo-reset-btn" id="btn-reset-demo">リセット</button>
     </div>` : '';
 
   return `
@@ -282,23 +276,13 @@ export function render(items) {
       </div>
       ${totalSavings > 0 ? `
       <div class="sc-sep"></div>
-      <div class="sc-stat sc-savings" id="sc-savings-tap">
+      <div class="sc-stat sc-savings">
         <div class="sc-val sc-savings-val">¥${totalSavings >= 10000 ? Math.round(totalSavings/10000)+'万' : totalSavings.toLocaleString()}</div>
         <div class="sc-lbl">節約中 🎉</div>
       </div>` : ''}
     </div>
 
-    ${totalSavings > 0 ? `
-    <div class="savings-banner" id="savings-banner">
-      <div class="savings-banner-left">
-        <div class="savings-banner-main">¥${totalSavings >= 10000 ? (totalSavings/10000).toFixed(1)+'万' : totalSavings.toLocaleString()} 節約中！</div>
-        <div class="savings-banner-sub">${savingsCount}個のアイテムが平均より長く現役</div>
-      </div>
-      <div class="savings-banner-right">🎉</div>
-    </div>` : ''}
-
-    ${buildMilestoneStrip(active)}
-    ${buildOverdueStrip(active)}
+    ${buildNoticeStrip(active)}
 
     <div class="filter-area">
       <div class="tab-pills">
