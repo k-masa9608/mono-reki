@@ -1731,6 +1731,12 @@ body {
   margin-left: 88px; margin-top: 4px;
 }
 
+/* ── 年表 期間フィルター空状態 ── */
+.tl-empty-range {
+  padding: 32px 16px; text-align: center;
+  font-size: 13px; color: var(--text-lt); font-weight: 600;
+}
+
 /* ── 年表パネル（年軸固定 + 行スクロール） ── */
 .tl-panel {
   display: flex;

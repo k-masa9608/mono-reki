@@ -282,6 +282,8 @@ export function init(existingItem, navigate, saveItem, endedItems = []) {
         area?.insertAdjacentElement('afterend', btn);
         btn.addEventListener('click', handleRemovePhoto);
       }
+    }).catch(() => {
+      alert('画像の読み込みに失敗しました。別の画像をお試しください。');
     });
   });
   document.getElementById('btn-remove-photo')?.addEventListener('click', handleRemovePhoto);

@@ -169,16 +169,12 @@ function renderYears(items) {
   const hiddenNote = hiddenCount > 0
     ? `<span class="tl-hidden-note">＋${hiddenCount}件は全期間で表示</span>` : '';
 
-  return {
-    controls: `
-      <div class="tl-sort-row">${rangeBtns}</div>
-      <div class="tl-sort-row">${sortBtns}</div>
-      <div class="tl-hint-row">
-        <span class="tl-hint">薄い色＝終了済み・タップで詳細</span>
-        ${hiddenNote}
-      </div>`,
-    body: `
-      <div class="tl-panel">
+  const bodyContent = visibleItems.length === 0
+    ? `<div class="tl-empty-range">
+        <p>この期間に該当するアイテムがありません</p>
+        <button class="tl-sort-btn" data-trange="all" style="margin-top:8px">全期間を表示</button>
+      </div>`
+    : `<div class="tl-panel">
         <div class="tl-axis-row">
           <div class="tl-axis-spacer"></div>
           <div class="tl-axis-marks">${axisHtml}</div>
@@ -188,7 +184,17 @@ function renderYears(items) {
             <div class="tl-rows">${rowsHtml}</div>
           </div>
         </div>
+      </div>`;
+
+  return {
+    controls: `
+      <div class="tl-sort-row">${rangeBtns}</div>
+      <div class="tl-sort-row">${sortBtns}</div>
+      <div class="tl-hint-row">
+        <span class="tl-hint">薄い色＝終了済み・タップで詳細</span>
+        ${hiddenNote}
       </div>`,
+    body: bodyContent,
   };
 }
 

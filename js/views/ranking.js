@@ -1,5 +1,5 @@
-import { RANK_META, CATEGORIES, calcDays, getRank, dailyCost, hasPrice,
-         fmtYearsDecimal, fmtCurrency, fmtDate } from '../utils.js';
+import { RANK_META, calcDays, getRank, dailyCost, hasPrice,
+         fmtYearsDecimal, fmtCurrency, fmtDate, getCatAvg } from '../utils.js';
 
 let _tab = 'years';
 
@@ -42,7 +42,7 @@ export function render(items) {
       ${list.length ? list.map((item, i) => {
         const days   = calcDays(item.startDate, item.endDate);
         const cost   = dailyCost(item.actualPrice, days);
-        const avg    = CATEGORIES[item.category] || 5;
+        const avg    = getCatAvg(item.category);
         const ratio  = days / (avg * 365);
         const rank   = getRank(ratio);
         const priced = hasPrice(item);
