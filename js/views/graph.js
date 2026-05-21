@@ -157,20 +157,19 @@ function renderYears(items) {
     const ratio   = days / (avg * 365);
     const rank    = getRank(ratio);
     const meta    = rank ? RANK_META[rank] : null;
-    // バッジ位置：バーの右端（overflow:hidden の外に出す）
-    const badgeLeft = (left + Math.max(width, 0.5)).toFixed(1);
-    const rankBadge = meta
-      ? `<span class="tl-rank-badge" style="left:${badgeLeft}%;background:${meta.bg};color:${meta.text}">${rank}</span>`
+    const rankInline = meta
+      ? `<span class="tl-bar-rank-pill" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
       : '';
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
-      <div class="tl-track tl-track--ranked">
+      <div class="tl-track">
         ${gridLines}
         <div class="${barClass}" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
-          ${width>9?`<span class="tl-bar-label">${usedY}年</span>`:''}
+          ${width>6
+            ? `<span class="tl-bar-label">${usedY}年</span>${rankInline}`
+            : width>2 ? rankInline : ''}
         </div>
-        ${rankBadge}
       </div>
     </div>`;
   }
