@@ -160,6 +160,16 @@ function renderYears(items) {
     const rankCol = meta
       ? `<div class="tl-rank-col"><span class="tl-rank-col-badge" style="background:${meta.bg};color:${meta.text}">${rank}</span></div>`
       : `<div class="tl-rank-col"></div>`;
+
+    // 平均年数ラインの位置（使用開始日 + 平均日数）
+    const avgDate = new Date(start.getTime() + avg * 365 * 86400000);
+    const avgPct  = (avgDate - minDate) / totalMs * 100;
+    const overAvg = days >= avg * 365;
+    // バー内に収まるときだけ表示
+    const avgLine = overAvg && avgPct >= left && avgPct <= left + Math.max(width, 0.5)
+      ? `<div class="tl-avg-line" style="left:${avgPct.toFixed(1)}%"></div>`
+      : '';
+
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
@@ -169,6 +179,7 @@ function renderYears(items) {
         <div class="${barClass}" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
           ${width>7?`<span class="tl-bar-label">${usedY}年</span>`:''}
         </div>
+        ${avgLine}
       </div>
     </div>`;
   }

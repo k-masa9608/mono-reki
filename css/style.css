@@ -1201,6 +1201,13 @@ body {
 /* 年軸のランク列分オフセット */
 .tl-axis-rank-spacer { width: 24px; }
 
+/* 平均年数ライン（超過アイテムのみ） */
+.tl-avg-line {
+  position: absolute; top: 1px; height: 16px; width: 2px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 1px; pointer-events: none; z-index: 3;
+}
+
 /* ── Graph view tabs ── */
 .g-view-tabs {
   display: flex; gap: 0; margin-bottom: 14px;
