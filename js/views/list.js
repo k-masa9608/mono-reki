@@ -24,10 +24,6 @@ function endedCard(item, maxDays) {
   const rank    = getRank(ratio);
   const meta    = rank ? RANK_META[rank] : null;
 
-  const showWave = days > WAVE_THRESHOLD_DAYS;
-  const barDays  = showWave ? maxDays : days;
-  const fillPct  = Math.min(barDays / maxDays, 1) * 100;
-
   const reasonHtml = item.disposalReason
     ? `<span class="cv2-disposal">${item.disposalReason}</span>`
     : `<span class="cv2-cat">${item.category}</span>`;
@@ -46,11 +42,8 @@ function endedCard(item, maxDays) {
       <span class="cv2-years">${usedY}<small>年</small></span>
       ${priced ? `<span class="cv2-cost">${fmtCurrency(Math.round(cost))}/日</span>` : ''}
     </div>
-    <div class="cv2-bar-row">
-      <div class="cv2-bar-track">
-        <div class="cv2-bar-fill" style="width:${fillPct.toFixed(1)}%;background:#94a3b8"></div>
-        ${showWave ? `<span class="cv2-wave" style="color:#94a3b8">〜〜〜</span>` : ''}
-      </div>
+    <div class="cv2-b2row">
+      ${buildCardBar(days, avg, '#94a3b8')}
       <span class="cv2-end-date">${endYM} 終了</span>
     </div>
   </div>`;
