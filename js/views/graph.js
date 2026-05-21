@@ -156,18 +156,21 @@ function renderYears(items) {
     const avg     = getCatAvg(item.category);
     const ratio   = days / (avg * 365);
     const rank    = getRank(ratio);
-    const rankTag = rank && width > 3
-      ? `<span class="tl-bar-rank">${rank}</span>`
+    const meta    = rank ? RANK_META[rank] : null;
+    // バッジ位置：バーの右端（overflow:hidden の外に出す）
+    const badgeLeft = (left + Math.max(width, 0.5)).toFixed(1);
+    const rankBadge = meta
+      ? `<span class="tl-rank-badge" style="left:${badgeLeft}%;background:${meta.bg};color:${meta.text}">${rank}</span>`
       : '';
     rowsHtml += `
     <div class="tl-row" data-id="${item.id}">
       <div class="tl-name" title="${item.name}">${icon?`<span class="tl-row-icon">${icon}</span>`:''}${item.name}</div>
-      <div class="tl-track">
+      <div class="tl-track tl-track--ranked">
         ${gridLines}
         <div class="${barClass}" style="left:${left.toFixed(1)}%;width:${Math.max(width,0.5).toFixed(1)}%;background:${color};opacity:${alpha}">
           ${width>9?`<span class="tl-bar-label">${usedY}年</span>`:''}
-          ${rankTag}
         </div>
+        ${rankBadge}
       </div>
     </div>`;
   }
