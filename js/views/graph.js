@@ -166,7 +166,7 @@ function renderCostBars(items) {
   const targets = items.filter(i => !i.endDate && hasPrice(i));
 
   if (!targets.length) {
-    return `<div class="empty-state"><p class="empty-icon">📊</p><p class="empty-text">金額が登録されたアイテムがありません</p></div>`;
+    return { controls: '', body: `<div class="empty-state"><p class="empty-icon">📊</p><p class="empty-text">金額が登録されたアイテムがありません</p></div>` };
   }
 
   const entries = targets.map(item => {

@@ -265,6 +265,7 @@ async function renderView(view, params = {}) {
     }
     case 'edit': {
       const item = await DB.get(params.id);
+      if (!item) { navigate('list'); break; }
       const endedItems = items.filter(i => i.endDate && i.id !== item.id);
       appHeader.innerHTML = headerBack('編集');
       main.innerHTML = FormView.render(item, endedItems, items);

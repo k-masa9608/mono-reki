@@ -1,5 +1,5 @@
 import { CATEGORIES, CATEGORY_GROUPS, calcDays, dailyCost, hasPrice,
-         fmtCurrency, getMilestone } from '../utils.js';
+         fmtCurrency, getMilestone, getCatAvg } from '../utils.js';
 
 const CAT_ICONS = {
   'スマホ':'📱','PC':'💻','タブレット':'📟','イヤホン':'🎧',
@@ -21,7 +21,7 @@ let _state = {
 function calcResultHTML() {
   const days    = Math.round(_state.years * 365);
   const cost    = _state.price / days;
-  const avg     = CATEGORIES[_state.category] || 5;
+  const avg     = getCatAvg(_state.category);
   const color   = cost < 10 ? '#22c55e' : cost < 30 ? '#16a34a' : cost < 100 ? '#3b82f6' : cost < 300 ? '#f97316' : '#ef4444';
   const label   = cost < 10 ? '超優秀' : cost < 30 ? '優秀' : cost < 100 ? '良好' : cost < 300 ? '普通' : '要改善';
 

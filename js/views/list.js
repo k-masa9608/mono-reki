@@ -103,8 +103,6 @@ function itemCard(item, maxDays) {
   const meta   = rank ? RANK_META[rank] : null;
   const ms     = !item.endDate ? getMilestone(days) : null;
 
-  const costHtml = ``;
-
   const rankBadge = meta
     ? `<span class="cv2-rank${rank==='SS'?' cv2-rank-ss':''}" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
     : '';
@@ -127,7 +125,6 @@ function itemCard(item, maxDays) {
       <span class="cv2-name">${item.name}</span>
       ${rankBadge}
       <span class="cv2-years" style="color:${color}">${usedY}<small>年</small></span>
-      ${costHtml}
     </div>
     <div class="cv2-b2row">
       ${buildCardBar(days, avg, color)}
@@ -136,11 +133,7 @@ function itemCard(item, maxDays) {
   </div>`;
 }
 
-const CAT_ICONS_MS = {
-  'スマホ':'📱','PC':'💻','タブレット':'📟','イヤホン':'🎧',
-  'カメラ':'📷','ゲーム機':'🎮','時計':'⌚','バッグ':'🎒',
-  '洋服':'👔','家電':'📺','家具':'🪑','自転車':'🚲','楽器':'🎸','車・バイク':'🚗',
-};
+const CAT_ICONS_MS = CAT_ICONS; // 統合済み（重複排除）
 const MILESTONE_YEARS = [1, 3, 5, 7, 10];
 
 // マイルストーン＋超過を1本のストリップに統合

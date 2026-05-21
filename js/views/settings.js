@@ -235,6 +235,7 @@ export function init(navigate) {
       if (!Array.isArray(items)) throw new Error('配列ではありません');
       for (const item of items) await DB.put(item);
       showResult(`✅ ${items.length}件を読み込みました`, false);
+      setTimeout(() => navigate('list'), 1200);
     } catch (err) {
       showResult(`❌ 読み込み失敗: ${err.message}`, true);
     }
@@ -276,7 +277,7 @@ export function init(navigate) {
     if (!confirm('全データを削除しますか？この操作は元に戻せません。')) return;
     const items = await DB.getAll();
     for (const item of items) await DB.delete(item.id);
-    localStorage.removeItem('nannenshita_seeded');
+    ['nannenshita_seeded','mono_cat_avgs','mono_catavg_open'].forEach(k => localStorage.removeItem(k));
     navigate('list');
   });
 }

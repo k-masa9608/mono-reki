@@ -1,4 +1,4 @@
-import { CATEGORIES, calcDays, fmtYearsDecimal, fmtCurrency, genId, today } from '../utils.js';
+import { CATEGORIES, calcDays, fmtYearsDecimal, fmtCurrency, genId, today, getCatAvg } from '../utils.js';
 
 const CAT_ICONS = {
   'スマホ':'📱','PC':'💻','タブレット':'📟','イヤホン':'🎧','カメラ':'📷','ゲーム機':'🎮',
@@ -12,7 +12,7 @@ function buildComparison(wish, activeItems) {
 
   const rows = same.map(item => {
     const days    = calcDays(item.startDate);
-    const avg     = CATEGORIES[item.category] || 5;
+    const avg     = getCatAvg(item.category);
     const over    = days / 365 >= avg;
     const usedY   = fmtYearsDecimal(days);
     const icon    = item.icon || CAT_ICONS[item.category] || '📦';

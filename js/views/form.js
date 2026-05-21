@@ -347,7 +347,7 @@ export function init(existingItem, navigate, saveItem, endedItems = []) {
     const _startDate = document.getElementById('f-start').value;
     const _endDateVal = document.getElementById('f-end').value;
     const _endErrEl = document.getElementById('f-end-error');
-    if (_endDateVal && _endDateVal <= _startDate) {
+    if (_endDateVal && _endDateVal < _startDate) {
       if (_endErrEl) _endErrEl.style.display = 'block';
       document.getElementById('f-end').focus();
       return;
