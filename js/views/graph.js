@@ -1,5 +1,6 @@
 import { CATEGORIES, calcDays, fmtYearsDecimal, dailyCost, hasPrice,
          getRank, RANK_META, fmtCurrency, getCatAvg } from '../utils.js';
+import * as SimulatorView from './simulator.js';
 
 const CAT_COLORS = {
   'スマホ':    '#3b82f6', 'PC':        '#8b5cf6', 'タブレット':'#a78bfa',
@@ -14,7 +15,7 @@ const CAT_ICONS = {
 };
 const FREQ_PER_YEAR = { '毎日':365, '週数回':156, '週1':52, '月数回':24, 'たまに':12 };
 
-let _view       = 'years';   // 'years' | 'cost'
+let _view       = 'years';   // 'years' | 'cost' | 'yearly' | 'sim'
 let _timeSort   = 'cat';     // 'cat' | 'old' | 'new'
 let _costSort   = 'day_asc'; // 'day_asc' | 'day_desc' | 'use_asc' | 'use_desc'
 let _costFilter = 'active';  // 'active' | 'ended' | 'all'
@@ -303,6 +304,65 @@ function renderCostBars(items) {
   };
 }
 
+// ── 年別投資額 ────────────────────────────────────────
+function renderYearly(items) {
+  const priced = items.filter(i => hasPrice(i));
+  if (!priced.length) {
+    return { controls: '', body: `<div class="empty-state"><p class="empty-icon">📅</p><p class="empty-text">金額が登録されたアイテムがありません</p></div>` };
+  }
+
+  // 購入年ごとに集計（purchaseDate > startDate の優先順）
+  const byYear = {};
+  for (const item of priced) {
+    const dateStr = item.purchaseDate || item.startDate;
+    const year = parseInt(dateStr.slice(0, 4));
+    if (!byYear[year]) byYear[year] = { total: 0, cats: {} };
+    byYear[year].total += item.actualPrice;
+    byYear[year].cats[item.category] = (byYear[year].cats[item.category] || 0) + item.actualPrice;
+  }
+
+  const years = Object.keys(byYear).map(Number).sort((a, b) => a - b);
+  const maxVal = Math.max(...years.map(y => byYear[y].total));
+  const grandTotal = years.reduce((s, y) => s + byYear[y].total, 0);
+
+  const rows = years.map(year => {
+    const { total, cats } = byYear[year];
+    const pct = (total / maxVal) * 100;
+    // カテゴリ別セグメント
+    const segments = Object.entries(cats)
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, amt]) => {
+        const segPct = (amt / total) * 100;
+        const color  = CAT_COLORS[cat] || '#94a3b8';
+        return `<div class="yb-seg" style="width:${segPct.toFixed(1)}%;background:${color}" title="${cat} ¥${amt.toLocaleString('ja-JP')}"></div>`;
+      }).join('');
+
+    return `
+    <div class="yb-row">
+      <div class="yb-year">${year}</div>
+      <div class="yb-track">
+        <div class="yb-bar" style="width:${pct.toFixed(1)}%">${segments}</div>
+      </div>
+      <div class="yb-val">¥${Math.round(total/10000)}万</div>
+    </div>`;
+  }).join('');
+
+  // カテゴリ凡例
+  const usedCats = [...new Set(priced.map(i => i.category))];
+  const legend = usedCats.map(cat =>
+    `<span class="yb-legend-item"><span class="yb-legend-dot" style="background:${CAT_COLORS[cat]||'#94a3b8'}"></span>${cat}</span>`
+  ).join('');
+
+  return {
+    controls: `<div class="yb-legend">${legend}</div>`,
+    body: `
+      <div class="yb-panel">
+        <div class="yb-total">累計 ¥${Math.round(grandTotal/10000)}万円</div>
+        <div class="yb-list">${rows}</div>
+      </div>`,
+  };
+}
+
 // ── render ──────────────────────────────────────────
 export function render(items) {
   if (!items.length) {
@@ -312,23 +372,24 @@ export function render(items) {
     };
   }
 
-  const viewTabs = [['years','年数'],['cost','コスト・回数']]
+  const viewTabs = [['years','年数'],['cost','コスト'],['yearly','年別'],['sim','シミュ']]
     .map(([v,l])=>`<button class="g-view-tab${_view===v?' active':''}" data-view="${v}">${l}</button>`).join('');
 
-  const { controls, body } = _view==='years' ? renderYears(items) : renderCostBars(items);
+  const isSim = _view === 'sim';
+  const { controls, body } = _view==='years'  ? renderYears(items)
+                           : _view==='cost'   ? renderCostBars(items)
+                           : _view==='yearly' ? renderYearly(items)
+                           : { controls: '', body: SimulatorView.render(items) };
 
   return {
     headerExtra: `
       <div class="graph-header-controls">
         <div class="g-view-tabs">${viewTabs}</div>
-        <div class="tl-controls">${controls}</div>
+        ${controls ? `<div class="tl-controls">${controls}</div>` : ''}
       </div>`,
     body: `
       <div id="graph-view">
-        <div class="section">
-          ${buildInsights(items)}
-          ${buildRankDist(items)}
-        </div>
+        ${!isSim ? `<div class="section">${buildInsights(items)}${buildRankDist(items)}</div>` : ''}
         <div class="section graph-body">${body}</div>
       </div>`,
   };
@@ -354,6 +415,9 @@ export function init(items, navigate, openModal) {
   document.querySelectorAll('[data-cfil]').forEach(btn => {
     btn.addEventListener('click', () => { _costFilter = btn.dataset.cfil; navigate('graph'); });
   });
+  if (_view === 'sim') {
+    SimulatorView.init(items, navigate);
+  }
   if (openModal) {
     document.querySelectorAll('.tl-row[data-id],.cb-row[data-id]').forEach(row => {
       row.addEventListener('click', () => openModal(row.dataset.id));

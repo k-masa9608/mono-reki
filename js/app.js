@@ -71,7 +71,7 @@ modalSheet?.addEventListener('touchend', e => {
 
 // ── Bottom nav helper ──
 const bottomNav = document.getElementById('bottom-nav');
-const MAIN_VIEWS = new Set(['list', 'simulator', 'graph', 'wishlist', 'settings']);
+const MAIN_VIEWS = new Set(['list', 'graph', 'ranking', 'wishlist', 'settings']);
 
 function updateBottomNav(view) {
   if (!bottomNav) return;
@@ -172,10 +172,8 @@ async function renderView(view, params = {}) {
       break;
     }
     case 'simulator': {
-      appHeader.innerHTML = headerMain();
-      main.innerHTML = SimulatorView.render(items);
-      SimulatorView.init(items, navigate);
-      bindHeaderMain();
+      // シミュレーターはグラフのシミュタブに統合済み → グラフへリダイレクト
+      navigate('graph');
       break;
     }
     case 'graph': {

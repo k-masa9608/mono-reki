@@ -1842,3 +1842,41 @@ body {
   -webkit-overflow-scrolling: touch;
   padding: 4px 0 8px;
 }
+
+/* ── 年別投資グラフ ── */
+.yb-panel { padding: 4px 0 8px; }
+.yb-total {
+  font-size: 11px; font-weight: 700; color: var(--text-m);
+  padding: 0 4px 8px; text-align: right;
+}
+.yb-list { display: flex; flex-direction: column; gap: 5px; }
+.yb-row { display: flex; align-items: center; gap: 8px; }
+.yb-year {
+  width: 36px; flex-shrink: 0;
+  font-size: 10px; font-weight: 700; color: var(--text-m); text-align: right;
+}
+.yb-track {
+  flex: 1; height: 16px; background: var(--border); border-radius: 4px;
+  overflow: hidden;
+}
+.yb-bar { height: 100%; display: flex; border-radius: 4px; overflow: hidden; }
+.yb-seg { height: 100%; transition: width .3s; }
+.yb-val {
+  width: 38px; flex-shrink: 0;
+  font-size: 10px; font-weight: 700; color: var(--text); text-align: right;
+}
+.yb-legend {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 0 0 6px;
+}
+.yb-legend-item {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 9px; color: var(--text-m); font-weight: 600;
+}
+.yb-legend-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+
+/* グラフタブ4つ対応 */
+.g-view-tabs { flex-wrap: nowrap; }
+.g-view-tab { font-size: 11px; padding: 6px 0; }
