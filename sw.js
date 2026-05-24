@@ -1,4 +1,4 @@
-const CACHE = 'mono-reki-v3';
+const CACHE = 'mono-reki-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const ASSETS = [
   './js/views/settings.js',
   './js/views/onboarding.js',
   './js/views/wishlist.js',
+  './js/views/ranking.js',
   './js/share.js',
   './icons/icon.svg',
 ];

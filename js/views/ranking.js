@@ -23,9 +23,9 @@ export function render(items) {
   });
   const list = _tab === 'years' ? byYears : byCost;
 
-  const medals = ['🥇','🥈','🥉','4位','5位','6位','7位','8位','9位','10位'];
+  const medals = ['🥇','🥈','🥉'];
   const filterBtns = [['all','全て'],['active','使用中'],['ended','終了済']]
-    .map(([v,l])=>`<button class="tl-sort-btn${_filter===v?' active':''}${v==='ended'?' rk-ended-btn':''}" data-rfil="${v}">${l}</button>`).join('');
+    .map(([v,l])=>`<button class="rk-filter-btn${_filter===v?' active':''}${v==='ended'?' rk-filter-ended':''}" data-rfil="${v}">${l}</button>`).join('');
 
   return `
   <div id="ranking-view">
@@ -40,11 +40,11 @@ export function render(items) {
     </div>` : ''}
 
     <div class="rk-controls">
-      <div class="tl-sort-row">${filterBtns}</div>
-      <div class="tab-bar rk-tab-bar">
-        <button class="tab-btn ${_tab==='years'?'active':''}" data-rtab="years">年数順</button>
-        <button class="tab-btn ${_tab==='cost' ?'active':''}" data-rtab="cost">コスト順</button>
+      <div class="rk-tabs">
+        <button class="rk-tab${_tab==='years'?' active':''}" data-rtab="years">年数順</button>
+        <button class="rk-tab${_tab==='cost' ?' active':''}" data-rtab="cost">コスト順</button>
       </div>
+      <div class="rk-filters">${filterBtns}</div>
     </div>
 
     <div class="ranking-list">
@@ -54,15 +54,10 @@ export function render(items) {
         const avg    = getCatAvg(item.category);
         const ratio  = days / (avg * 365);
         const rank   = getRank(ratio);
-        const priced = hasPrice(item);
         const meta   = rank ? RANK_META[rank] : null;
-        const color  = meta ? meta.border : '#cbd5e1';
+        const color  = meta ? meta.border : '#94a3b8';
         const glow   = rank === 'SS' ? ' ss-glow' : '';
         const ended  = !!item.endDate;
-
-        const badge = meta
-          ? `<span class="rank-badge${glow}" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
-          : `<span class="rank-badge-none">—</span>`;
 
         const mainVal = _tab === 'years'
           ? `${fmtYearsDecimal(days)}年`
@@ -71,18 +66,37 @@ export function render(items) {
           ? (ended ? '終了済' : '使用中')
           : '/日';
 
+        // ミニ進捗バー（年数タブのみ）
+        const barMax = avg * 365 * 1.5;
+        const barPct = Math.min(days / barMax * 100, 100).toFixed(1);
+        const avgPct = ((avg * 365) / barMax * 100).toFixed(1);
+        const miniBar = _tab === 'years' ? `
+          <div class="rk-bar-wrap">
+            <div class="rk-bar-fill" style="width:${barPct}%;background:${color}"></div>
+            <div class="rk-bar-avg" style="left:${avgPct}%"></div>
+          </div>` : '';
+
+        const posLabel = medals[i] != null
+          ? `<span class="rk-medal">${medals[i]}</span>`
+          : `<span class="rk-num">${i+1}</span>`;
+
+        const badgeHtml = meta
+          ? `<span class="rk-badge${glow}" style="background:${meta.bg};color:${meta.text}">${rank}</span>`
+          : `<span class="rk-badge-empty"></span>`;
+
         return `
-        <div class="rank-row ${i===0&&!ended?'gold':''}${ended?' rank-row--ended':''}" data-id="${item.id}"
+        <div class="rk-row${i===0&&!ended?' gold':''}${ended?' rk-row--ended':''}" data-id="${item.id}"
              style="border-left-color:${color}">
-          <div class="rank-pos">${medals[i] || `${i+1}位`}</div>
-          <div class="rank-row-info">
-            <div class="rank-row-name">${item.name}${ended?'<span class="rk-ended-tag">終了</span>':''}</div>
-            <div class="rank-row-sub">${item.category} · ${fmtDate(item.startDate)}</div>
+          <div class="rk-pos">${posLabel}</div>
+          <div class="rk-info">
+            <div class="rk-name">${item.name}${ended?'<span class="rk-ended-tag">終了</span>':''}</div>
+            <div class="rk-sub">${item.category} · ${fmtDate(item.startDate)}</div>
+            ${miniBar}
           </div>
-          ${badge}
-          <div class="rank-row-right">
-            <span class="rank-row-val" style="color:${color}">${mainVal}</span>
-            <span class="rank-row-unit">${unitLabel}</span>
+          <div class="rk-score">
+            ${badgeHtml}
+            <span class="rk-val" style="color:${color}">${mainVal}</span>
+            <span class="rk-unit">${unitLabel}</span>
           </div>
         </div>`;
       }).join('') : `<div class="empty-state">
@@ -100,7 +114,7 @@ export function init(navigate) {
   document.querySelectorAll('[data-rfil]').forEach(btn => {
     btn.addEventListener('click', () => { _filter = btn.dataset.rfil; navigate('ranking'); });
   });
-  document.querySelectorAll('.rank-row[data-id]').forEach(row => {
+  document.querySelectorAll('.rk-row[data-id]').forEach(row => {
     row.addEventListener('click', () => navigate('detail', { id: row.dataset.id }));
   });
 }

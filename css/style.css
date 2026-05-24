@@ -203,44 +203,90 @@ body {
 
 /* ── ランキングビュー ── */
 .rk-controls {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px 4px; gap: 8px; flex-wrap: wrap;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 12px 6px;
 }
-.rk-tab-bar { margin: 0 !important; padding: 0 !important; }
-.rk-ended-btn.active { background: #64748b; border-color: #64748b; }
-.ranking-list { display: flex; flex-direction: column; gap: 6px; padding: 8px 12px 80px; }
-.rank-row {
-  display: flex; align-items: center; gap: 8px;
+/* ソートタブ（独自スタイル） */
+.rk-tabs {
+  display: flex; background: var(--border-m); border-radius: 10px; padding: 3px; gap: 0;
+}
+.rk-tab {
+  flex: 1; padding: 7px 0; font-size: 12px; font-weight: 700;
+  border: none; border-radius: 8px; background: transparent;
+  color: var(--text-m); cursor: pointer; font-family: var(--font-ui);
+  transition: background .15s, color .15s, box-shadow .15s;
+}
+.rk-tab.active {
+  background: var(--bg); color: var(--blue);
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+/* フィルターピル */
+.rk-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.rk-filter-btn {
+  font-size: 11px; font-weight: 600; padding: 4px 12px;
+  border-radius: 20px; border: 1.5px solid var(--border-m);
+  background: var(--bg-sub); color: var(--text-m); cursor: pointer;
+  font-family: var(--font-ui); transition: background .15s, color .15s;
+}
+.rk-filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.rk-filter-ended.active { background: #64748b; border-color: #64748b; }
+/* カードリスト */
+.ranking-list { display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 80px; }
+.rk-row {
+  display: flex; align-items: center; gap: 10px;
   background: var(--bg); border-radius: 12px;
-  padding: 10px 12px;
+  padding: 11px 12px;
   border-left: 4px solid var(--border-m);
   box-shadow: var(--shadow-sm); cursor: pointer;
   transition: opacity .15s;
 }
-.rank-row.gold { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
-.rank-row--ended { opacity: 0.55; }
-.rank-pos { font-size: 18px; width: 28px; flex-shrink: 0; text-align: center; }
-.rank-row-info { flex: 1; min-width: 0; }
-.rank-row-name {
+.rk-row.gold { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+.rk-row--ended { opacity: 0.6; }
+/* 順位列 */
+.rk-pos { flex-shrink: 0; width: 32px; text-align: center; }
+.rk-medal { font-size: 22px; line-height: 1; }
+.rk-num {
+  display: inline-block; font-family: var(--font-num); font-size: 16px;
+  font-weight: 800; color: var(--text-m); line-height: 1;
+}
+/* 情報列 */
+.rk-info { flex: 1; min-width: 0; }
+.rk-name {
   font-size: 13px; font-weight: 700; color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   display: flex; align-items: center; gap: 4px;
 }
-.rank-row-sub { font-size: 10px; color: var(--text-lt); margin-top: 2px; }
-.rank-badge {
-  flex-shrink: 0; font-size: 9px; font-weight: 800;
-  padding: 2px 6px; border-radius: 6px; letter-spacing: .3px;
-}
-.rank-badge-none { flex-shrink: 0; font-size: 9px; color: var(--text-lt); width: 28px; text-align: center; }
-.ss-glow { box-shadow: 0 0 8px rgba(200,100,255,.5); }
-.rank-row-right { flex-shrink: 0; text-align: right; }
-.rank-row-val { font-family: var(--font-num); font-size: 18px; display: block; line-height: 1.1; }
-.rank-row-unit { font-size: 9px; color: var(--text-lt); font-weight: 600; }
+.rk-sub { font-size: 10px; color: var(--text-lt); margin-top: 2px; }
 .rk-ended-tag {
   font-size: 8px; font-weight: 700; color: #64748b;
   background: #f1f5f9; border: 1px solid #e2e8f0;
   border-radius: 4px; padding: 1px 4px; flex-shrink: 0;
 }
+/* ミニ進捗バー */
+.rk-bar-wrap {
+  position: relative; height: 5px; background: var(--border-m);
+  border-radius: 3px; margin-top: 6px; overflow: visible;
+}
+.rk-bar-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  border-radius: 3px;
+}
+.rk-bar-avg {
+  position: absolute; top: -3px; width: 2px; height: 11px;
+  background: #94a3b8; border-radius: 1px; transform: translateX(-50%);
+}
+/* スコア列（右側：バッジ＋年数） */
+.rk-score {
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+.rk-badge {
+  font-size: 9px; font-weight: 800;
+  padding: 2px 7px; border-radius: 6px; letter-spacing: .3px;
+}
+.rk-badge-empty { height: 17px; }
+.ss-glow { box-shadow: 0 0 8px rgba(200,100,255,.5); }
+.rk-val { font-family: var(--font-num); font-size: 18px; line-height: 1.1; }
+.rk-unit { font-size: 9px; color: var(--text-lt); font-weight: 600; }
 
 /* ── 節約バナー ── */
 .savings-banner {
