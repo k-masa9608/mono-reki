@@ -1279,6 +1279,13 @@ body {
   font-size: 9px; font-weight: 800; padding: 2px 5px;
   border-radius: 5px; white-space: nowrap;
 }
+.cb-row--ended { opacity: 0.6; }
+.cb-ended-tag {
+  font-size: 8px; font-weight: 700; color: #64748b;
+  background: #f1f5f9; border: 1px solid #e2e8f0;
+  border-radius: 3px; padding: 0 3px; margin-left: 4px;
+  vertical-align: middle;
+}
 
 /* ── Form section cards ── */
 .form-section { margin-bottom: 0; }

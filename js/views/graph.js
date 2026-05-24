@@ -14,10 +14,11 @@ const CAT_ICONS = {
 };
 const FREQ_PER_YEAR = { '毎日':365, '週数回':156, '週1':52, '月数回':24, 'たまに':12 };
 
-let _view      = 'years';   // 'years' | 'cost'
-let _timeSort  = 'cat';     // 'cat' | 'old' | 'new'
-let _costSort  = 'day_asc'; // 'day_asc' | 'day_desc' | 'use_asc' | 'use_desc'
-let _timeRange = '5y';      // '3y' | '5y' | 'all'
+let _view       = 'years';   // 'years' | 'cost'
+let _timeSort   = 'cat';     // 'cat' | 'old' | 'new'
+let _costSort   = 'day_asc'; // 'day_asc' | 'day_desc' | 'use_asc' | 'use_desc'
+let _costFilter = 'active';  // 'active' | 'ended' | 'all'
+let _timeRange  = '5y';      // '3y' | '5y' | 'all'
 
 // ── インサイト ──────────────────────────────────────
 function buildInsights(items) {
@@ -224,18 +225,22 @@ function renderYears(items) {
 
 // ── コスト・回数バーチャート ─────────────────────────
 function renderCostBars(items) {
-  const targets = items.filter(i => !i.endDate && hasPrice(i));
+  const allPriced = items.filter(i => hasPrice(i));
 
-  if (!targets.length) {
+  if (!allPriced.length) {
     return { controls: '', body: `<div class="empty-state"><p class="empty-icon">📊</p><p class="empty-text">金額が登録されたアイテムがありません</p></div>` };
   }
 
+  const targets = _costFilter === 'active' ? allPriced.filter(i => !i.endDate)
+                : _costFilter === 'ended'  ? allPriced.filter(i =>  i.endDate)
+                : allPriced;
+
   const entries = targets.map(item => {
-    const days    = calcDays(item.startDate);
+    const days    = calcDays(item.startDate, item.endDate); // ★ endDate を渡す（バグ修正）
     const costDay = item.actualPrice / days;
     const freq    = item.usageFreq && FREQ_PER_YEAR[item.usageFreq];
     const costUse = freq ? item.actualPrice / (freq * (days / 365)) : null;
-    const ratio   = days / ((getCatAvg(item.category)) * 365);
+    const ratio   = days / (getCatAvg(item.category) * 365);
     const rank    = getRank(ratio);
     const meta    = rank ? RANK_META[rank] : null;
     return { item, costDay, costUse, days, rank, meta };
@@ -251,29 +256,36 @@ function renderCostBars(items) {
   });
   const maxVal = Math.max(...sorted.map(e => useDay ? e.costDay : (e.costUse ?? 0)), 1);
 
+  const filterBtns = [['active','使用中'],['ended','終了済'],['all','全て']]
+    .map(([v,l])=>`<button class="tl-sort-btn${_costFilter===v?' active':''}" data-cfil="${v}">${l}</button>`).join('');
   const sortBtns = [
     ['day_asc','¥/日↑'],['day_desc','¥/日↓'],
     ['use_asc','¥/回↑'],['use_desc','¥/回↓'],
   ].map(([v,l])=>`<button class="tl-sort-btn${_costSort===v?' active':''}" data-csort="${v}">${l}</button>`).join('');
 
+  const emptyMsg = targets.length === 0
+    ? `<div class="empty-state"><p class="empty-icon">📊</p><p class="empty-text">該当するアイテムがありません</p></div>` : '';
+
   const rows = sorted.map(({ item, costDay, costUse, days, rank, meta }) => {
-    const barVal = useDay ? costDay : (costUse ?? 0);
-    const pct    = barVal > 0 ? (barVal / maxVal) * 100 : 0;
-    const color  = meta ? meta.border : '#94a3b8';
-    const icon   = CAT_ICONS[item.category]||'📦';
-    const badge  = meta ? `<span class="cb-rank" style="background:${meta.bg};color:${meta.text}">${rank}</span>` : '';
-    const usedY  = fmtYearsDecimal(days);
-    const dayStr = `¥${Math.round(costDay).toLocaleString()}/日`;
-    const useStr = costUse != null
+    const barVal  = useDay ? costDay : (costUse ?? 0);
+    const pct     = barVal > 0 ? (barVal / maxVal) * 100 : 0;
+    const ended   = !!item.endDate;
+    const color   = ended ? '#94a3b8' : (meta ? meta.border : '#94a3b8');
+    const icon    = CAT_ICONS[item.category]||'📦';
+    const badge   = meta ? `<span class="cb-rank" style="background:${meta.bg};color:${meta.text}">${rank}</span>` : '';
+    const usedY   = fmtYearsDecimal(days);
+    const dayStr  = `¥${Math.round(costDay).toLocaleString()}/日`;
+    const useStr  = costUse != null
       ? `${item.usageFreq} ¥${Math.round(costUse).toLocaleString()}/回`
       : `—/回`;
+    const endedTag = ended ? `<span class="cb-ended-tag">終了</span>` : '';
     return `
-    <div class="cb-row" data-id="${item.id}">
-      <div class="cb-name" title="${item.name}">${icon} ${item.name}</div>
+    <div class="cb-row${ended?' cb-row--ended':''}" data-id="${item.id}">
+      <div class="cb-name" title="${item.name}">${icon} ${item.name}${endedTag}</div>
       <div class="cb-track">
         <div class="cb-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div>
       </div>
-      <div class="cb-sub">${usedY}年使用</div>
+      <div class="cb-sub">${usedY}年${ended?'使用':'使用中'}</div>
       <div class="cb-vals">
         <span class="${useDay ? 'cb-val-main' : 'cb-val-dim'}">${dayStr}</span>
         <span class="${!useDay ? 'cb-val-main' : 'cb-val-dim'}">${useStr}</span>
@@ -283,8 +295,11 @@ function renderCostBars(items) {
   }).join('');
 
   return {
-    controls: `<div class="tl-sort-row">${sortBtns}</div><div class="tl-hint">¥/回は使用頻度登録済みのみ有効</div>`,
-    body: `<div class="cb-panel"><div class="cb-scroll-body"><div class="cb-list">${rows}</div></div></div>`,
+    controls: `
+      <div class="tl-sort-row">${filterBtns}</div>
+      <div class="tl-sort-row">${sortBtns}</div>
+      <div class="tl-hint">¥/回は使用頻度登録済みのみ有効</div>`,
+    body: emptyMsg || `<div class="cb-panel"><div class="cb-scroll-body"><div class="cb-list">${rows}</div></div></div>`,
   };
 }
 
@@ -335,6 +350,9 @@ export function init(items, navigate, openModal) {
   });
   document.querySelectorAll('[data-csort]').forEach(btn => {
     btn.addEventListener('click', () => { _costSort = btn.dataset.csort; navigate('graph'); });
+  });
+  document.querySelectorAll('[data-cfil]').forEach(btn => {
+    btn.addEventListener('click', () => { _costFilter = btn.dataset.cfil; navigate('graph'); });
   });
   if (openModal) {
     document.querySelectorAll('.tl-row[data-id],.cb-row[data-id]').forEach(row => {
